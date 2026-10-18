@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>Aspetto</string>
+	<key>Attachments</key>
+	<string>Allegati</string>
+	<key>Blue</key>
+	<string>Blu</string>
+	<key>Call Countdown</key>
+	<string>Conto alla rovescia chiamate</string>
+	<key>Calls</key>
+	<string>Chiamate</string>
+	<key>Cancel</key>
+	<string>Annulla</string>
+	<key>Conversations</key>
+	<string>Conversazioni</string>
+	<key>Conversations Reset</key>
+	<string>Conversazioni ripristinate</string>
+	<key>Countdown Color</key>
+	<string>Colore del conto alla rovescia</string>
+	<key>Delay</key>
+	<string>Ritardo</string>
+	<key>Enabled</key>
+	<string>Attivo</string>
+	<key>Enter Value</key>
+	<string>Inserisci valore</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>Ogni conversazione usa di nuovo il conto alla rovescia.</string>
+	<key>First Message</key>
+	<string>Primo messaggio</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>Da %1$@ a %2$@.</string>
+	<key>Gray</key>
+	<string>Grigio</string>
+	<key>Green</key>
+	<string>Verde</string>
+	<key>Haptics</key>
+	<string>Aptico</string>
+	<key>Messages</key>
+	<string>Messaggi</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>I messaggi con meno caratteri di questo numero vengono inviati subito. «No» applica il conto alla rovescia a ogni messaggio, a prescindere dalla lunghezza.</string>
+	<key>Minimum Length</key>
+	<string>Lunghezza minima</string>
+	<key>OK</key>
+	<string>OK</string>
+	<key>Off</key>
+	<string>No</string>
+	<key>Orange</key>
+	<string>Arancione</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>Le chiamate telefoniche e FaceTime fanno un conto alla rovescia prima di iniziare. Le chiamate di emergenza non vengono mai ritardate.</string>
+	<key>Pink</key>
+	<string>Rosa</string>
+	<key>Progress Ring</key>
+	<string>Anello di avanzamento</string>
+	<key>Purple</key>
+	<string>Viola</string>
+	<key>Red</key>
+	<string>Rosso</string>
+	<key>Reset Skipped Conversations</key>
+	<string>Ripristina conversazioni escluse</string>
+	<key>Same</key>
+	<string>Uguale</string>
+	<key>Set</key>
+	<string>Imposta</string>
+	<key>Short Messages</key>
+	<string>Messaggi brevi</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>Scorri una conversazione verso sinistra in Messaggi per attivare o disattivare il suo conto alla rovescia. Un fulmine accanto alla data indica che il conto alla rovescia è disattivato.</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>Tocca il pulsante di invio durante il conto alla rovescia per annullare. I valori impostati su «Uguale» usano il ritardo normale.</string>
+	<key>s</key>
+	<string>s</string>
+</dict>
+</plist>

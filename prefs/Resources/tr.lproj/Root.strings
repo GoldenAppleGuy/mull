@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>Görünüm</string>
+	<key>Attachments</key>
+	<string>Ekler</string>
+	<key>Blue</key>
+	<string>Mavi</string>
+	<key>Call Countdown</key>
+	<string>Arama Geri Sayımı</string>
+	<key>Calls</key>
+	<string>Aramalar</string>
+	<key>Cancel</key>
+	<string>Vazgeç</string>
+	<key>Conversations</key>
+	<string>Konuşmalar</string>
+	<key>Conversations Reset</key>
+	<string>Konuşmalar Sıfırlandı</string>
+	<key>Countdown Color</key>
+	<string>Geri Sayım Rengi</string>
+	<key>Delay</key>
+	<string>Gecikme</string>
+	<key>Enabled</key>
+	<string>Etkin</string>
+	<key>Enter Value</key>
+	<string>Değer Girin</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>Her konuşma yine geri sayımı kullanır.</string>
+	<key>First Message</key>
+	<string>İlk Mesaj</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>%1$@ ile %2$@ arası.</string>
+	<key>Gray</key>
+	<string>Gri</string>
+	<key>Green</key>
+	<string>Yeşil</string>
+	<key>Haptics</key>
+	<string>Dokunsal</string>
+	<key>Messages</key>
+	<string>Mesajlar</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>Bu karakter sayısından kısa mesajlar hemen gönderilir. “Kapalı”, uzunluğa bakılmaksızın her mesaj için geri sayım yapar.</string>
+	<key>Minimum Length</key>
+	<string>En Kısa Uzunluk</string>
+	<key>OK</key>
+	<string>Tamam</string>
+	<key>Off</key>
+	<string>Kapalı</string>
+	<key>Orange</key>
+	<string>Turuncu</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>Telefon ve FaceTime aramaları başlamadan önce geri sayım yapar. Acil durum aramaları asla geciktirilmez.</string>
+	<key>Pink</key>
+	<string>Pembe</string>
+	<key>Progress Ring</key>
+	<string>İlerleme Halkası</string>
+	<key>Purple</key>
+	<string>Mor</string>
+	<key>Red</key>
+	<string>Kırmızı</string>
+	<key>Reset Skipped Conversations</key>
+	<string>Atlanan Konuşmaları Sıfırla</string>
+	<key>Same</key>
+	<string>Aynı</string>
+	<key>Set</key>
+	<string>Ayarla</string>
+	<key>Short Messages</key>
+	<string>Kısa Mesajlar</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>Mesajlar’da bir konuşmayı sola kaydırarak geri sayımını kapatın veya açın. Tarihin yanındaki şimşek, geri sayımın kapalı olduğunu gösterir.</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>İptal etmek için geri sayım sırasında Gönder düğmesine dokunun. “Aynı” olarak ayarlanan değerler normal gecikmeyi kullanır.</string>
+	<key>s</key>
+	<string>sn</string>
+</dict>
+</plist>

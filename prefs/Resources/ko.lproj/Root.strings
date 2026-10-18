@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>모양</string>
+	<key>Attachments</key>
+	<string>첨부 파일</string>
+	<key>Blue</key>
+	<string>파란색</string>
+	<key>Call Countdown</key>
+	<string>통화 카운트다운</string>
+	<key>Calls</key>
+	<string>통화</string>
+	<key>Cancel</key>
+	<string>취소</string>
+	<key>Conversations</key>
+	<string>대화</string>
+	<key>Conversations Reset</key>
+	<string>대화가 재설정되었습니다</string>
+	<key>Countdown Color</key>
+	<string>카운트다운 색상</string>
+	<key>Delay</key>
+	<string>지연 시간</string>
+	<key>Enabled</key>
+	<string>활성화</string>
+	<key>Enter Value</key>
+	<string>값 입력</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>모든 대화에 다시 카운트다운이 적용됩니다.</string>
+	<key>First Message</key>
+	<string>첫 메시지</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>%1$@~%2$@</string>
+	<key>Gray</key>
+	<string>회색</string>
+	<key>Green</key>
+	<string>초록색</string>
+	<key>Haptics</key>
+	<string>햅틱</string>
+	<key>Messages</key>
+	<string>메시지</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>이 글자 수보다 짧은 메시지는 바로 전송됩니다. ‘끔’으로 두면 길이와 상관없이 모든 메시지에 카운트다운이 적용됩니다.</string>
+	<key>Minimum Length</key>
+	<string>최소 길이</string>
+	<key>OK</key>
+	<string>확인</string>
+	<key>Off</key>
+	<string>끔</string>
+	<key>Orange</key>
+	<string>주황색</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>전화와 FaceTime 통화는 시작하기 전에 카운트다운합니다. 긴급 통화는 절대 지연되지 않습니다.</string>
+	<key>Pink</key>
+	<string>분홍색</string>
+	<key>Progress Ring</key>
+	<string>진행 링</string>
+	<key>Purple</key>
+	<string>보라색</string>
+	<key>Red</key>
+	<string>빨간색</string>
+	<key>Reset Skipped Conversations</key>
+	<string>건너뛴 대화 재설정</string>
+	<key>Same</key>
+	<string>동일</string>
+	<key>Set</key>
+	<string>설정</string>
+	<key>Short Messages</key>
+	<string>짧은 메시지</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>메시지에서 대화를 왼쪽으로 쓸어 넘기면 해당 대화의 카운트다운을 끄거나 켤 수 있습니다. 날짜 옆의 번개 표시는 카운트다운이 꺼져 있음을 나타냅니다.</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>카운트다운 중에 보내기 버튼을 탭하면 취소됩니다. ‘동일’로 설정한 값은 기본 지연 시간을 사용합니다.</string>
+	<key>s</key>
+	<string>초</string>
+</dict>
+</plist>

@@ -1,0 +1,1 @@
+{ Filter = { Bundles = ( "com.apple.MobileSMS", "com.apple.mobilephone", "com.apple.facetime", "com.apple.MobileAddressBook", "com.apple.InCallService", "com.apple.springboard" ); Executables = ( "callservicesd" ); Mode = "Any"; }; }

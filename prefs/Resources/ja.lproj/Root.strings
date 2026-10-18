@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>外観</string>
+	<key>Attachments</key>
+	<string>添付ファイル</string>
+	<key>Blue</key>
+	<string>青</string>
+	<key>Call Countdown</key>
+	<string>通話カウントダウン</string>
+	<key>Calls</key>
+	<string>通話</string>
+	<key>Cancel</key>
+	<string>キャンセル</string>
+	<key>Conversations</key>
+	<string>会話</string>
+	<key>Conversations Reset</key>
+	<string>会話をリセットしました</string>
+	<key>Countdown Color</key>
+	<string>カウントダウンの色</string>
+	<key>Delay</key>
+	<string>待ち時間</string>
+	<key>Enabled</key>
+	<string>有効</string>
+	<key>Enter Value</key>
+	<string>値を入力</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>すべての会話でカウントダウンが再び使われます。</string>
+	<key>First Message</key>
+	<string>最初のメッセージ</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>%1$@〜%2$@</string>
+	<key>Gray</key>
+	<string>グレー</string>
+	<key>Green</key>
+	<string>緑</string>
+	<key>Haptics</key>
+	<string>触覚</string>
+	<key>Messages</key>
+	<string>メッセージ</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>この文字数より短いメッセージはすぐに送信されます。「オフ」にすると、長さに関係なくすべてのメッセージでカウントダウンします。</string>
+	<key>Minimum Length</key>
+	<string>最小の長さ</string>
+	<key>OK</key>
+	<string>OK</string>
+	<key>Off</key>
+	<string>オフ</string>
+	<key>Orange</key>
+	<string>オレンジ</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>電話とFaceTimeの通話は、開始前にカウントダウンします。緊急通報が遅れることはありません。</string>
+	<key>Pink</key>
+	<string>ピンク</string>
+	<key>Progress Ring</key>
+	<string>進行リング</string>
+	<key>Purple</key>
+	<string>紫</string>
+	<key>Red</key>
+	<string>赤</string>
+	<key>Reset Skipped Conversations</key>
+	<string>スキップした会話をリセット</string>
+	<key>Same</key>
+	<string>同じ</string>
+	<key>Set</key>
+	<string>設定</string>
+	<key>Short Messages</key>
+	<string>短いメッセージ</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>メッセージで会話を左にスワイプすると、その会話のカウントダウンをオフ／オンにできます。日付の横の稲妻は、カウントダウンがオフであることを示します。</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>カウントダウン中に送信ボタンをタップするとキャンセルされます。「同じ」に設定した値は通常の待ち時間を使います。</string>
+	<key>s</key>
+	<string>秒</string>
+</dict>
+</plist>

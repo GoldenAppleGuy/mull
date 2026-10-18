@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Call Now</key>
+	<string>지금 통화</string>
+	<key>Cancel</key>
+	<string>취소</string>
+	<key>FaceTime Audio</key>
+	<string>FaceTime 오디오</string>
+	<key>FaceTime Video</key>
+	<string>FaceTime 비디오</string>
+	<key>Phone Call</key>
+	<string>전화</string>
+	<key>Skip Countdown</key>
+	<string>카운트다운 건너뛰기</string>
+	<key>Use Countdown</key>
+	<string>카운트다운 사용</string>
+</dict>
+</plist>

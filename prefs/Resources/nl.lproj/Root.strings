@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>Weergave</string>
+	<key>Attachments</key>
+	<string>Bijlagen</string>
+	<key>Blue</key>
+	<string>Blauw</string>
+	<key>Call Countdown</key>
+	<string>Aftelling voor oproepen</string>
+	<key>Calls</key>
+	<string>Oproepen</string>
+	<key>Cancel</key>
+	<string>Annuleer</string>
+	<key>Conversations</key>
+	<string>Gesprekken</string>
+	<key>Conversations Reset</key>
+	<string>Gesprekken hersteld</string>
+	<key>Countdown Color</key>
+	<string>Kleur van de aftelling</string>
+	<key>Delay</key>
+	<string>Vertraging</string>
+	<key>Enabled</key>
+	<string>Ingeschakeld</string>
+	<key>Enter Value</key>
+	<string>Waarde invoeren</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>Elk gesprek gebruikt de aftelling weer.</string>
+	<key>First Message</key>
+	<string>Eerste bericht</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>Van %1$@ tot %2$@.</string>
+	<key>Gray</key>
+	<string>Grijs</string>
+	<key>Green</key>
+	<string>Groen</string>
+	<key>Haptics</key>
+	<string>Haptiek</string>
+	<key>Messages</key>
+	<string>Berichten</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>Berichten met minder tekens dan dit aantal worden meteen verzonden. ‘Uit’ laat voor elk bericht de aftelling lopen, ongeacht de lengte.</string>
+	<key>Minimum Length</key>
+	<string>Minimale lengte</string>
+	<key>OK</key>
+	<string>OK</string>
+	<key>Off</key>
+	<string>Uit</string>
+	<key>Orange</key>
+	<string>Oranje</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>Telefoon- en FaceTime-oproepen tellen af voordat ze beginnen. Noodoproepen worden nooit vertraagd.</string>
+	<key>Pink</key>
+	<string>Roze</string>
+	<key>Progress Ring</key>
+	<string>Voortgangsring</string>
+	<key>Purple</key>
+	<string>Paars</string>
+	<key>Red</key>
+	<string>Rood</string>
+	<key>Reset Skipped Conversations</key>
+	<string>Overgeslagen gesprekken herstellen</string>
+	<key>Same</key>
+	<string>Gelijk</string>
+	<key>Set</key>
+	<string>Stel in</string>
+	<key>Short Messages</key>
+	<string>Korte berichten</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>Veeg in Berichten een gesprek naar links om de aftelling ervan uit of aan te zetten. Een bliksemflits naast de datum laat zien dat de aftelling uit staat.</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>Tik tijdens het aftellen op de verzendknop om te annuleren. Waarden die op ‘Gelijk’ staan, gebruiken de gewone vertraging.</string>
+	<key>s</key>
+	<string>s</string>
+</dict>
+</plist>

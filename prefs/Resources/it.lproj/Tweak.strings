@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Call Now</key>
+	<string>Chiama ora</string>
+	<key>Cancel</key>
+	<string>Annulla</string>
+	<key>FaceTime Audio</key>
+	<string>FaceTime Audio</string>
+	<key>FaceTime Video</key>
+	<string>FaceTime Video</string>
+	<key>Phone Call</key>
+	<string>Chiamata</string>
+	<key>Skip Countdown</key>
+	<string>Salta conto alla rovescia</string>
+	<key>Use Countdown</key>
+	<string>Usa conto alla rovescia</string>
+</dict>
+</plist>

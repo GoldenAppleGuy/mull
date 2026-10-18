@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>Darstellung</string>
+	<key>Attachments</key>
+	<string>Anhänge</string>
+	<key>Blue</key>
+	<string>Blau</string>
+	<key>Call Countdown</key>
+	<string>Anruf-Countdown</string>
+	<key>Calls</key>
+	<string>Anrufe</string>
+	<key>Cancel</key>
+	<string>Abbrechen</string>
+	<key>Conversations</key>
+	<string>Unterhaltungen</string>
+	<key>Conversations Reset</key>
+	<string>Unterhaltungen zurückgesetzt</string>
+	<key>Countdown Color</key>
+	<string>Farbe des Countdowns</string>
+	<key>Delay</key>
+	<string>Verzögerung</string>
+	<key>Enabled</key>
+	<string>Aktiviert</string>
+	<key>Enter Value</key>
+	<string>Wert eingeben</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>Jede Unterhaltung nutzt den Countdown wieder.</string>
+	<key>First Message</key>
+	<string>Erste Nachricht</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>Von %1$@ bis %2$@.</string>
+	<key>Gray</key>
+	<string>Grau</string>
+	<key>Green</key>
+	<string>Grün</string>
+	<key>Haptics</key>
+	<string>Haptik</string>
+	<key>Messages</key>
+	<string>Nachrichten</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>Nachrichten, die kürzer als diese Zeichenzahl sind, werden sofort gesendet. „Aus“ lässt für jede Nachricht den Countdown laufen, unabhängig von der Länge.</string>
+	<key>Minimum Length</key>
+	<string>Mindestlänge</string>
+	<key>OK</key>
+	<string>OK</string>
+	<key>Off</key>
+	<string>Aus</string>
+	<key>Orange</key>
+	<string>Orange</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>Telefon- und FaceTime-Anrufe zählen herunter, bevor sie beginnen. Notrufe werden nie verzögert.</string>
+	<key>Pink</key>
+	<string>Pink</string>
+	<key>Progress Ring</key>
+	<string>Fortschrittsring</string>
+	<key>Purple</key>
+	<string>Lila</string>
+	<key>Red</key>
+	<string>Rot</string>
+	<key>Reset Skipped Conversations</key>
+	<string>Übersprungene Unterhaltungen zurücksetzen</string>
+	<key>Same</key>
+	<string>Wie normal</string>
+	<key>Set</key>
+	<string>Übernehmen</string>
+	<key>Short Messages</key>
+	<string>Kurze Nachrichten</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>Wische in Nachrichten eine Unterhaltung nach links, um ihren Countdown aus- oder einzuschalten. Ein Blitz neben dem Datum zeigt, dass der Countdown aus ist.</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>Tippe während des Countdowns auf die Senden-Taste, um abzubrechen. Werte auf „Wie normal“ nutzen die normale Verzögerung.</string>
+	<key>s</key>
+	<string>s</string>
+</dict>
+</plist>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>外观</string>
+	<key>Attachments</key>
+	<string>附件</string>
+	<key>Blue</key>
+	<string>蓝色</string>
+	<key>Call Countdown</key>
+	<string>通话倒计时</string>
+	<key>Calls</key>
+	<string>通话</string>
+	<key>Cancel</key>
+	<string>取消</string>
+	<key>Conversations</key>
+	<string>对话</string>
+	<key>Conversations Reset</key>
+	<string>对话已重置</string>
+	<key>Countdown Color</key>
+	<string>倒计时颜色</string>
+	<key>Delay</key>
+	<string>延迟</string>
+	<key>Enabled</key>
+	<string>启用</string>
+	<key>Enter Value</key>
+	<string>输入数值</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>所有对话将再次使用倒计时。</string>
+	<key>First Message</key>
+	<string>首条信息</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>%1$@ 至 %2$@</string>
+	<key>Gray</key>
+	<string>灰色</string>
+	<key>Green</key>
+	<string>绿色</string>
+	<key>Haptics</key>
+	<string>触感</string>
+	<key>Messages</key>
+	<string>信息</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>字数少于此数值的信息会立即发送。“关闭”表示无论长度，所有信息都会倒计时。</string>
+	<key>Minimum Length</key>
+	<string>最短长度</string>
+	<key>OK</key>
+	<string>好</string>
+	<key>Off</key>
+	<string>关闭</string>
+	<key>Orange</key>
+	<string>橙色</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>电话和 FaceTime 通话会在开始前倒计时。紧急呼叫绝不会被延迟。</string>
+	<key>Pink</key>
+	<string>粉色</string>
+	<key>Progress Ring</key>
+	<string>进度环</string>
+	<key>Purple</key>
+	<string>紫色</string>
+	<key>Red</key>
+	<string>红色</string>
+	<key>Reset Skipped Conversations</key>
+	<string>重置已跳过的对话</string>
+	<key>Same</key>
+	<string>相同</string>
+	<key>Set</key>
+	<string>设定</string>
+	<key>Short Messages</key>
+	<string>短信息</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>在“信息”中向左轻扫某个对话，即可关闭或开启其倒计时。日期旁的闪电表示该对话已关闭倒计时。</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>倒计时期间轻点“发送”按钮即可取消。设为“相同”的值使用常规延迟。</string>
+	<key>s</key>
+	<string>秒</string>
+</dict>
+</plist>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>Appearance</string>
+	<key>Attachments</key>
+	<string>Attachments</string>
+	<key>Blue</key>
+	<string>Blue</string>
+	<key>Call Countdown</key>
+	<string>Call Countdown</string>
+	<key>Calls</key>
+	<string>Calls</string>
+	<key>Cancel</key>
+	<string>Cancel</string>
+	<key>Conversations</key>
+	<string>Conversations</string>
+	<key>Conversations Reset</key>
+	<string>Conversations Reset</string>
+	<key>Countdown Color</key>
+	<string>Countdown Color</string>
+	<key>Delay</key>
+	<string>Delay</string>
+	<key>Enabled</key>
+	<string>Enabled</string>
+	<key>Enter Value</key>
+	<string>Enter Value</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>Every conversation uses the countdown again.</string>
+	<key>First Message</key>
+	<string>First Message</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>From %1$@ to %2$@.</string>
+	<key>Gray</key>
+	<string>Gray</string>
+	<key>Green</key>
+	<string>Green</string>
+	<key>Haptics</key>
+	<string>Haptics</string>
+	<key>Messages</key>
+	<string>Messages</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</string>
+	<key>Minimum Length</key>
+	<string>Minimum Length</string>
+	<key>OK</key>
+	<string>OK</string>
+	<key>Off</key>
+	<string>Off</string>
+	<key>Orange</key>
+	<string>Orange</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</string>
+	<key>Pink</key>
+	<string>Pink</string>
+	<key>Progress Ring</key>
+	<string>Progress Ring</string>
+	<key>Purple</key>
+	<string>Purple</string>
+	<key>Red</key>
+	<string>Red</string>
+	<key>Reset Skipped Conversations</key>
+	<string>Reset Skipped Conversations</string>
+	<key>Same</key>
+	<string>Same</string>
+	<key>Set</key>
+	<string>Set</string>
+	<key>Short Messages</key>
+	<string>Short Messages</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</string>
+	<key>s</key>
+	<string>s</string>
+</dict>
+</plist>

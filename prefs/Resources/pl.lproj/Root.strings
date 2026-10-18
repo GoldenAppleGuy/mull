@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>Wygląd</string>
+	<key>Attachments</key>
+	<string>Załączniki</string>
+	<key>Blue</key>
+	<string>Niebieski</string>
+	<key>Call Countdown</key>
+	<string>Odliczanie połączeń</string>
+	<key>Calls</key>
+	<string>Połączenia</string>
+	<key>Cancel</key>
+	<string>Anuluj</string>
+	<key>Conversations</key>
+	<string>Rozmowy</string>
+	<key>Conversations Reset</key>
+	<string>Rozmowy zresetowane</string>
+	<key>Countdown Color</key>
+	<string>Kolor odliczania</string>
+	<key>Delay</key>
+	<string>Opóźnienie</string>
+	<key>Enabled</key>
+	<string>Włączone</string>
+	<key>Enter Value</key>
+	<string>Wpisz wartość</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>Każda rozmowa znów używa odliczania.</string>
+	<key>First Message</key>
+	<string>Pierwsza wiadomość</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>Od %1$@ do %2$@.</string>
+	<key>Gray</key>
+	<string>Szary</string>
+	<key>Green</key>
+	<string>Zielony</string>
+	<key>Haptics</key>
+	<string>Wibracje</string>
+	<key>Messages</key>
+	<string>Wiadomości</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>Wiadomości krótsze niż ta liczba znaków wysyłane są od razu. „Wył.” odlicza przy każdej wiadomości, niezależnie od długości.</string>
+	<key>Minimum Length</key>
+	<string>Minimalna długość</string>
+	<key>OK</key>
+	<string>OK</string>
+	<key>Off</key>
+	<string>Wył.</string>
+	<key>Orange</key>
+	<string>Pomarańczowy</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>Połączenia telefoniczne i FaceTime są poprzedzone odliczaniem. Połączenia alarmowe nigdy nie są opóźniane.</string>
+	<key>Pink</key>
+	<string>Różowy</string>
+	<key>Progress Ring</key>
+	<string>Pierścień postępu</string>
+	<key>Purple</key>
+	<string>Fioletowy</string>
+	<key>Red</key>
+	<string>Czerwony</string>
+	<key>Reset Skipped Conversations</key>
+	<string>Zresetuj pominięte rozmowy</string>
+	<key>Same</key>
+	<string>Tak samo</string>
+	<key>Set</key>
+	<string>Ustaw</string>
+	<key>Short Messages</key>
+	<string>Krótkie wiadomości</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>Przesuń rozmowę w lewo w aplikacji Wiadomości, aby wyłączyć lub włączyć jej odliczanie. Błyskawica obok daty oznacza, że odliczanie jest wyłączone.</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>Stuknij przycisk wysyłania podczas odliczania, aby anulować. Wartości ustawione na „Tak samo” używają zwykłego opóźnienia.</string>
+	<key>s</key>
+	<string>s</string>
+</dict>
+</plist>

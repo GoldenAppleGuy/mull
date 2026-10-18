@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>Apparence</string>
+	<key>Attachments</key>
+	<string>Pièces jointes</string>
+	<key>Blue</key>
+	<string>Bleu</string>
+	<key>Call Countdown</key>
+	<string>Compte à rebours des appels</string>
+	<key>Calls</key>
+	<string>Appels</string>
+	<key>Cancel</key>
+	<string>Annuler</string>
+	<key>Conversations</key>
+	<string>Conversations</string>
+	<key>Conversations Reset</key>
+	<string>Conversations réinitialisées</string>
+	<key>Countdown Color</key>
+	<string>Couleur du compte à rebours</string>
+	<key>Delay</key>
+	<string>Délai</string>
+	<key>Enabled</key>
+	<string>Activé</string>
+	<key>Enter Value</key>
+	<string>Saisir une valeur</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>Toutes les conversations utilisent de nouveau le compte à rebours.</string>
+	<key>First Message</key>
+	<string>Premier message</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>De %1$@ à %2$@.</string>
+	<key>Gray</key>
+	<string>Gris</string>
+	<key>Green</key>
+	<string>Vert</string>
+	<key>Haptics</key>
+	<string>Haptique</string>
+	<key>Messages</key>
+	<string>Messages</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>Les messages de moins de caractères que ce nombre sont envoyés tout de suite. « Désactivé » applique le compte à rebours à tous les messages, quelle que soit leur longueur.</string>
+	<key>Minimum Length</key>
+	<string>Longueur minimale</string>
+	<key>OK</key>
+	<string>OK</string>
+	<key>Off</key>
+	<string>Désactivé</string>
+	<key>Orange</key>
+	<string>Orange</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>Les appels téléphoniques et FaceTime affichent un compte à rebours avant de démarrer. Les appels d’urgence ne sont jamais retardés.</string>
+	<key>Pink</key>
+	<string>Rose</string>
+	<key>Progress Ring</key>
+	<string>Anneau de progression</string>
+	<key>Purple</key>
+	<string>Violet</string>
+	<key>Red</key>
+	<string>Rouge</string>
+	<key>Reset Skipped Conversations</key>
+	<string>Réinitialiser les conversations ignorées</string>
+	<key>Same</key>
+	<string>Identique</string>
+	<key>Set</key>
+	<string>Valider</string>
+	<key>Short Messages</key>
+	<string>Messages courts</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>Balayez une conversation vers la gauche dans Messages pour activer ou désactiver son compte à rebours. Un éclair à côté de la date indique que le compte à rebours est désactivé.</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>Touchez le bouton d’envoi pendant le compte à rebours pour annuler. Les valeurs réglées sur « Identique » utilisent le délai habituel.</string>
+	<key>s</key>
+	<string>s</string>
+</dict>
+</plist>

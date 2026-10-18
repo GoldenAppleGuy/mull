@@ -1,0 +1,59 @@
+{
+  "minVersion": "0.1",
+  "class": "DepictionTabView",
+  "tintColor": "#FF3B30",
+  "tabs": [
+    {
+      "tabname": "Details",
+      "class": "DepictionStackView",
+      "views": [
+        {
+          "class": "DepictionMarkdownView",
+          "markdown": "Mull gives you a moment to change your mind. Tap Send in Messages and the button counts down before the message goes out; tap it to cancel. Phone and FaceTime calls get the same pause, with a full-screen countdown and buttons to cancel or call right away.\n\n- **Messages**: the Send button counts down, with a ring that drains and a haptic each second. Keeps counting if you leave the app.\n- **Delays**: separate times for the regular delay, the first message in a conversation, and messages with attachments. Adding an attachment during the countdown lengthens it.\n- **Short messages**: messages under a set length can send right away.\n- **Skip a conversation**: swipe a conversation to the left in Messages to turn its countdown off or on; a bolt marks it in the list.\n- **Calls**: Phone and FaceTime calls count down on a blurred full screen showing who is being called. Cancel stops the call; Call Now skips the wait. Works from recents, Contacts, Messages, notifications and more. Emergency calls are never delayed.\n- **Appearance**: countdown color, haptics and the progress ring can be changed.\n- **Control Center toggle** (needs CCSupport).\n- Translated into 13 languages."
+        },
+        {
+          "class": "DepictionSeparatorView"
+        },
+        {
+          "class": "DepictionHeaderView",
+          "title": "Information"
+        },
+        {
+          "class": "DepictionTableTextView",
+          "title": "Version",
+          "text": "%VERSION%"
+        },
+        {
+          "class": "DepictionTableTextView",
+          "title": "Compatibility",
+          "text": "iOS 15 – 18 (rootless, roothide and rootful)"
+        },
+        {
+          "class": "DepictionTableTextView",
+          "title": "Developer",
+          "text": "GoldenAppleGuy"
+        },
+        {
+          "class": "DepictionTableButtonView",
+          "title": "Source Code",
+          "action": "https://github.com/GoldenAppleGuy/mull"
+        }
+      ]
+    },
+    {
+      "tabname": "Changelog",
+      "class": "DepictionStackView",
+      "views": [
+        {
+          "class": "DepictionSubheaderView",
+          "title": "1.0.0",
+          "useBoldText": true
+        },
+        {
+          "class": "DepictionMarkdownView",
+          "markdown": "- First release: countdown for Messages and for Phone and FaceTime calls."
+        }
+      ]
+    }
+  ]
+}

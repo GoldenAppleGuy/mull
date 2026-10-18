@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>Внешний вид</string>
+	<key>Attachments</key>
+	<string>Вложения</string>
+	<key>Blue</key>
+	<string>Синий</string>
+	<key>Call Countdown</key>
+	<string>Отсчёт перед звонком</string>
+	<key>Calls</key>
+	<string>Звонки</string>
+	<key>Cancel</key>
+	<string>Отмена</string>
+	<key>Conversations</key>
+	<string>Беседы</string>
+	<key>Conversations Reset</key>
+	<string>Беседы сброшены</string>
+	<key>Countdown Color</key>
+	<string>Цвет обратного отсчёта</string>
+	<key>Delay</key>
+	<string>Задержка</string>
+	<key>Enabled</key>
+	<string>Включено</string>
+	<key>Enter Value</key>
+	<string>Введите значение</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>Во всех беседах снова используется обратный отсчёт.</string>
+	<key>First Message</key>
+	<string>Первое сообщение</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>От %1$@ до %2$@.</string>
+	<key>Gray</key>
+	<string>Серый</string>
+	<key>Green</key>
+	<string>Зелёный</string>
+	<key>Haptics</key>
+	<string>Вибрация</string>
+	<key>Messages</key>
+	<string>Сообщения</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>Сообщения короче этого числа символов отправляются сразу. «Выкл.» запускает отсчёт для каждого сообщения независимо от длины.</string>
+	<key>Minimum Length</key>
+	<string>Минимальная длина</string>
+	<key>OK</key>
+	<string>ОК</string>
+	<key>Off</key>
+	<string>Выкл.</string>
+	<key>Orange</key>
+	<string>Оранжевый</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>Перед началом телефонных звонков и звонков FaceTime идёт обратный отсчёт. Экстренные вызовы никогда не задерживаются.</string>
+	<key>Pink</key>
+	<string>Розовый</string>
+	<key>Progress Ring</key>
+	<string>Кольцо прогресса</string>
+	<key>Purple</key>
+	<string>Фиолетовый</string>
+	<key>Red</key>
+	<string>Красный</string>
+	<key>Reset Skipped Conversations</key>
+	<string>Сбросить пропущенные беседы</string>
+	<key>Same</key>
+	<string>Как обычно</string>
+	<key>Set</key>
+	<string>Готово</string>
+	<key>Short Messages</key>
+	<string>Короткие сообщения</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>Смахните беседу влево в «Сообщениях», чтобы выключить или включить для неё отсчёт. Молния рядом с датой означает, что отсчёт выключен.</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>Нажмите кнопку отправки во время отсчёта, чтобы отменить. Значения «Как обычно» используют обычную задержку.</string>
+	<key>s</key>
+	<string>с</string>
+</dict>
+</plist>

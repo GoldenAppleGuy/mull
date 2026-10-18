@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Appearance</key>
+	<string>Aparência</string>
+	<key>Attachments</key>
+	<string>Anexos</string>
+	<key>Blue</key>
+	<string>Azul</string>
+	<key>Call Countdown</key>
+	<string>Contagem de chamadas</string>
+	<key>Calls</key>
+	<string>Chamadas</string>
+	<key>Cancel</key>
+	<string>Cancelar</string>
+	<key>Conversations</key>
+	<string>Conversas</string>
+	<key>Conversations Reset</key>
+	<string>Conversas redefinidas</string>
+	<key>Countdown Color</key>
+	<string>Cor da contagem regressiva</string>
+	<key>Delay</key>
+	<string>Atraso</string>
+	<key>Enabled</key>
+	<string>Ativado</string>
+	<key>Enter Value</key>
+	<string>Inserir valor</string>
+	<key>Every conversation uses the countdown again.</key>
+	<string>Todas as conversas voltam a usar a contagem regressiva.</string>
+	<key>First Message</key>
+	<string>Primeira mensagem</string>
+	<key>From %1$@ to %2$@.</key>
+	<string>De %1$@ a %2$@.</string>
+	<key>Gray</key>
+	<string>Cinza</string>
+	<key>Green</key>
+	<string>Verde</string>
+	<key>Haptics</key>
+	<string>Tátil</string>
+	<key>Messages</key>
+	<string>Mensagens</string>
+	<key>Messages shorter than this many characters send right away. Off counts down for every message regardless of length.</key>
+	<string>Mensagens com menos caracteres que este número são enviadas na hora. “Desativado” faz a contagem regressiva em todas as mensagens, qualquer que seja o tamanho.</string>
+	<key>Minimum Length</key>
+	<string>Tamanho mínimo</string>
+	<key>OK</key>
+	<string>OK</string>
+	<key>Off</key>
+	<string>Desativado</string>
+	<key>Orange</key>
+	<string>Laranja</string>
+	<key>Phone and FaceTime calls count down before they start. Emergency calls are never delayed.</key>
+	<string>Chamadas telefônicas e de FaceTime fazem uma contagem regressiva antes de começar. Chamadas de emergência nunca são atrasadas.</string>
+	<key>Pink</key>
+	<string>Rosa</string>
+	<key>Progress Ring</key>
+	<string>Anel de progresso</string>
+	<key>Purple</key>
+	<string>Roxo</string>
+	<key>Red</key>
+	<string>Vermelho</string>
+	<key>Reset Skipped Conversations</key>
+	<string>Redefinir conversas ignoradas</string>
+	<key>Same</key>
+	<string>Igual</string>
+	<key>Set</key>
+	<string>Definir</string>
+	<key>Short Messages</key>
+	<string>Mensagens curtas</string>
+	<key>Swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date shows that the countdown is off.</key>
+	<string>Deslize uma conversa para a esquerda em Mensagens para desativar ou ativar a contagem regressiva dela. Um raio ao lado da data indica que a contagem está desativada.</string>
+	<key>Tap the Send button during the countdown to cancel. Values set to Same use the regular delay.</key>
+	<string>Toque no botão de enviar durante a contagem regressiva para cancelar. Valores definidos como “Igual” usam o atraso normal.</string>
+	<key>s</key>
+	<string>s</string>
+</dict>
+</plist>
