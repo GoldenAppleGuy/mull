@@ -1,6 +1,6 @@
 Package: com.goldenappleguy.mull
 Name: Mull
-Version: 1.0.0
+Version: 1.0.1
 Description: Adds a short countdown before Messages sends a message and before Phone and FaceTime calls start, with a way to cancel each one.
 Maintainer: GoldenAppleGuy
 Author: GoldenAppleGuy

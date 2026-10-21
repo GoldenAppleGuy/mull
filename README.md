@@ -40,6 +40,7 @@ Mull gives you a moment to change your mind. Tap Send in Messages and the button
 | iOS 16.4 (simulator) | yes | not testable |
 | iOS 17.0 (rootless, device) | yes | yes |
 | iOS 18.6 (simulator) | yes | not testable |
+| iOS 26.3 (simulator) | yes | not testable |
 
 The roothide and rootful packages build but have not been run on a device. The names of the private methods the call code uses were checked on iOS 16.4, 18.0 and 18.6 and match iOS 17; whether calls behave identically there has not been seen.
 

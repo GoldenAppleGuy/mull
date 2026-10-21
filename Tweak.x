@@ -204,25 +204,45 @@ static void SCRefreshMarkers(UIView *root) {
 
 #pragma mark - Countdown
 
-// The visible Send control: sendButton, or on newer iOS (where that one is not the visible arrow) arrowButton
-static UIButton *SCSendButton(CKMessageEntryView *entryView) {
-    UIButton *button = entryView.sendButton;
-    BOOL usable = button.window && !button.hidden && button.bounds.size.width > 1;
-    if (!usable && [entryView respondsToSelector:@selector(arrowButton)]) {
-        UIButton *arrow = entryView.arrowButton;
-        if (arrow.window && !arrow.hidden && arrow.bounds.size.width > 1) return arrow;
+// The visible Send control: sendButton, or on newer iOS (where that one is not the visible one) arrowButton
+// (iOS 18) or glassSendButton (iOS 26)
+static UIView *SCSendButton(CKMessageEntryView *entryView) {
+    UIView *button = entryView.sendButton;
+    for (NSString *name in @[@"sendButton", @"arrowButton", @"glassSendButton"]) {
+        SEL sel = NSSelectorFromString(name);
+        if (![entryView respondsToSelector:sel]) continue;
+        UIView *candidate = ((id (*)(id, SEL))objc_msgSend)(entryView, sel);
+        if ([candidate isKindOfClass:[UIView class]] && candidate.window && !candidate.hidden && candidate.bounds.size.width > 1) return candidate;
     }
     return button;
 }
 
+// The glass Send button (iOS 26) filters whatever is drawn inside it, which tints the countdown's red; there the
+// countdown sits above the button, in its superview, instead
+static BOOL SCIsGlass(UIView *button) {
+    return button.superview && [NSStringFromClass([button class]) rangeOfString:@"Glass"].location != NSNotFound;
+}
+
+// The glass button is made (nearly) invisible during the countdown, and put back after
+static __weak UIView *gGlassButton;
+static CGFloat gGlassAlpha;
+
+static UIView *SCOverlayHost(UIView *button) {
+    return SCIsGlass(button) ? button.superview : button;
+}
+
 static UILabel *SCOverlay(void) {
-    return (UILabel *)[SCSendButton(gEntryView) viewWithTag:SC_OVERLAY_TAG];
+    return (UILabel *)[SCOverlayHost(SCSendButton(gEntryView)) viewWithTag:SC_OVERLAY_TAG];
 }
 
 static void SCStop(void) {
     [gTimer invalidate];
     gTimer = nil;
     [SCOverlay() removeFromSuperview];
+    if (gGlassButton) {
+        gGlassButton.alpha = gGlassAlpha;
+        gGlassButton = nil;
+    }
     gEntryView = nil;
     gController = nil;
     gConversation = nil;
@@ -248,25 +268,48 @@ static void SCHaptic(UIImpactFeedbackStyle style) {
 }
 
 static void SCShowOverlay(UIColor *color) {
-    UIButton *button = SCSendButton(gEntryView);
+    UIView *button = SCSendButton(gEntryView);
     if (!button) return;
     UILabel *label = SCOverlay();
+    BOOL glass = SCIsGlass(button);
+    CGRect area = glass ? button.frame : button.bounds;
     if (!label) {
-        label = [[UILabel alloc] initWithFrame:button.bounds];
+        label = [[UILabel alloc] initWithFrame:area];
         label.tag = SC_OVERLAY_TAG;
         label.textAlignment = NSTextAlignmentCenter;
         label.textColor = UIColor.whiteColor;
         label.clipsToBounds = YES;
-        label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        [button addSubview:label];
-        // A ring that drains over the whole countdown
+        if (!glass) label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [SCOverlayHost(button) addSubview:label];
+        if (glass) {
+            // Its glass is drawn on top of anything above it, tinting the countdown and showing the arrow through;
+            // an alpha just over the cutoff hides it but still lets a tap through to cancel
+            gGlassButton = button;
+            gGlassAlpha = button.alpha;
+            button.alpha = 0.011;
+        }
+        // A ring that drains over the whole countdown, centered (the glass button is a pill, not a circle)
         if (gRing) {
-        CGFloat ringSide = MIN(button.bounds.size.width, button.bounds.size.height);
+        CGFloat ringSide = MIN(area.size.width, area.size.height);
         CAShapeLayer *ring = [CAShapeLayer layer];
         ring.name = @"ring";
-        ring.frame = CGRectMake(0, 0, ringSide, ringSide);
-        ring.path = [UIBezierPath bezierPathWithArcCenter:CGPointMake(ringSide / 2, ringSide / 2) radius:ringSide / 2 - 2.5
-            startAngle:-M_PI_2 endAngle:M_PI * 1.5 clockwise:YES].CGPath;
+        if (glass) {
+            // The glass button is a pill: the ring follows its outline, starting at the top and going clockwise
+            CGFloat w = area.size.width, h = area.size.height, inset = 2.5, r = (h - 2 * inset) / 2;
+            UIBezierPath *pill = [UIBezierPath bezierPath];
+            [pill moveToPoint:CGPointMake(w / 2, inset)];
+            [pill addLineToPoint:CGPointMake(w - inset - r, inset)];
+            [pill addArcWithCenter:CGPointMake(w - inset - r, h / 2) radius:r startAngle:-M_PI_2 endAngle:M_PI_2 clockwise:YES];
+            [pill addLineToPoint:CGPointMake(inset + r, h - inset)];
+            [pill addArcWithCenter:CGPointMake(inset + r, h / 2) radius:r startAngle:M_PI_2 endAngle:M_PI * 1.5 clockwise:YES];
+            [pill closePath];
+            ring.frame = CGRectMake(0, 0, w, h);
+            ring.path = pill.CGPath;
+        } else {
+            ring.frame = CGRectMake((area.size.width - ringSide) / 2, (area.size.height - ringSide) / 2, ringSide, ringSide);
+            ring.path = [UIBezierPath bezierPathWithArcCenter:CGPointMake(ringSide / 2, ringSide / 2) radius:ringSide / 2 - 2.5
+                startAngle:-M_PI_2 endAngle:M_PI * 1.5 clockwise:YES].CGPath;
+        }
         ring.fillColor = UIColor.clearColor.CGColor;
         ring.strokeColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
         ring.lineWidth = 2;
@@ -281,7 +324,7 @@ static void SCShowOverlay(UIColor *color) {
         [label.layer addSublayer:ring];
         }
     }
-    CGFloat side = MIN(button.bounds.size.width, button.bounds.size.height);
+    CGFloat side = MIN(area.size.width, area.size.height);
     label.backgroundColor = color;
     label.layer.cornerRadius = side / 2;
     label.font = [UIFont monospacedDigitSystemFontOfSize:MAX(side * 0.5, 12) weight:UIFontWeightBold];
@@ -436,8 +479,9 @@ static UISwipeActionsConfiguration *SCAddAction(UISwipeActionsConfiguration *ori
     }
     if (!SCConversationID(conversation)) return original;
     BOOL exempt = SCIsExempt(conversation);
+    // Icon only (a title would be drawn beside it on iOS 26), sized to match the system actions' icons
     UIContextualAction *action = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal
-        title:SCLocalized(exempt ? @"Use Countdown" : @"Skip Countdown")
+        title:nil
         handler:^(UIContextualAction *a, UIView *view, void (^completion)(BOOL)) {
             SCToggleExempt(conversation);
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -446,7 +490,8 @@ static UISwipeActionsConfiguration *SCAddAction(UISwipeActionsConfiguration *ori
             completion(YES);
         }];
     action.backgroundColor = exempt ? UIColor.systemGreenColor : UIColor.systemOrangeColor;
-    action.image = [UIImage systemImageNamed:(exempt ? @"timer" : @"bolt.fill")];
+    UIImageSymbolConfiguration *symbol = [UIImageSymbolConfiguration configurationWithPointSize:17 weight:UIImageSymbolWeightMedium scale:UIImageSymbolScaleLarge];
+    action.image = [UIImage systemImageNamed:(exempt ? @"timer" : @"bolt.fill") withConfiguration:symbol];
     UISwipeActionsConfiguration *config = [UISwipeActionsConfiguration configurationWithActions:[original.actions arrayByAddingObject:action]];
     config.performsFirstActionWithFullSwipe = original.performsFirstActionWithFullSwipe;
     return config;
