@@ -26,7 +26,7 @@
         {
           "class": "DepictionTableTextView",
           "title": "Compatibility",
-          "text": "iOS 15 – 18 (rootless, roothide and rootful)"
+          "text": "iOS 14 – 26 (rootless, roothide and rootful)"
         },
         {
           "class": "DepictionTableTextView",
@@ -44,6 +44,15 @@
       "tabname": "Changelog",
       "class": "DepictionStackView",
       "views": [
+        {
+          "class": "DepictionSubheaderView",
+          "title": "1.0.2",
+          "useBoldText": true
+        },
+        {
+          "class": "DepictionMarkdownView",
+          "markdown": "- Now installs on iOS 14."
+        },
         {
           "class": "DepictionSubheaderView",
           "title": "1.0.1",

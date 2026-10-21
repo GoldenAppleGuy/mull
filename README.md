@@ -1,6 +1,6 @@
 # Mull
 
-Mull gives you a moment to change your mind. Tap Send in Messages and the button counts down before the message goes out; tap it to cancel. Phone and FaceTime calls get the same pause, with a full-screen countdown and buttons to cancel or call right away. Works on iOS 15 to 18.
+Mull gives you a moment to change your mind. Tap Send in Messages and the button counts down before the message goes out; tap it to cancel. Phone and FaceTime calls get the same pause, with a full-screen countdown and buttons to cancel or call right away. Works on iOS 14 to 26.
 
 ## Features
 
@@ -29,20 +29,21 @@ Mull gives you a moment to change your mind. Tap Send in Messages and the button
 
 ## Requirements
 
-- iOS 15 to 18, jailbroken: rootless, roothide or rootful.
+- iOS 14 to 26, jailbroken: rootless, roothide or rootful.
 - PreferenceLoader. CCSupport for the Control Center toggle.
 
 ## Tested
 
 | | Messages | Calls |
 | --- | --- | --- |
+| iOS 14.3 (rootful, device) | yes | yes |
 | iOS 15.4.1 (rootless, device) | yes | yes |
 | iOS 16.4 (simulator) | yes | not testable |
 | iOS 17.0 (rootless, device) | yes | yes |
 | iOS 18.6 (simulator) | yes | not testable |
 | iOS 26.3 (simulator) | yes | not testable |
 
-The roothide and rootful packages build but have not been run on a device. The names of the private methods the call code uses were checked on iOS 16.4, 18.0 and 18.6 and match iOS 17; whether calls behave identically there has not been seen.
+The roothide package builds but has not been run on a device. The names of the private methods the call code uses were checked on iOS 16.4, 18.0 and 18.6 and match iOS 17; whether calls behave identically there has not been seen.
 
 ## Building
 
@@ -87,7 +88,7 @@ Released through the [GoldenAppleGuy repo](https://goldenappleguy.github.io/repo
 
 ## How it works
 
-**Messages.** The hook is on `-[CKChatController messageEntryViewSendButtonHit:]` (and the new-message and notification-reply controllers that override it). The first tap starts the countdown and returns without sending; when it ends, the original method runs. The countdown circle is drawn on the Send button, which is `sendButton` on iOS 15 to 17 and `arrowButton` on iOS 18.
+**Messages.** The hook is on `-[CKChatController messageEntryViewSendButtonHit:]` (and the new-message and notification-reply controllers that override it). The first tap starts the countdown and returns without sending; when it ends, the original method runs. The countdown circle is drawn on the Send button, which is `sendButton` on iOS 14 to 17, `arrowButton` on iOS 18 and `glassSendButton` on iOS 26.
 
 **Calls.** `callservicesd` sees every call request before a call exists. The tweak holds the request in `-[CSDCallStateController dialWithRequest:displayContext:]` (and the FaceTime join step) while SpringBoard shows the countdown; the answer comes back through system notifications whose state carries the request. When the daemon hook is active, the per-app hooks (Phone, Contacts, FaceTime, in-call app) stand down, except for holding the app's request to open its call screen so nothing of it shows during the countdown.
 

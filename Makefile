@@ -1,5 +1,5 @@
 THEOS ?= /opt/theos
-TARGET := iphone:clang:latest:15.0
+TARGET := iphone:clang:latest:14.0
 ARCHS = arm64 arm64e
 THEOS_PACKAGE_SCHEME ?= rootless
 INSTALL_TARGET_PROCESSES = MobileSMS
@@ -7,7 +7,7 @@ FINALPACKAGE = 1
 
 ifeq ($(SIM),1)
 # Simulator test build of the tweak alone (make SIM=1): no substrate, hooks through the ObjC runtime
-TARGET := simulator:clang:latest:15.0
+TARGET := simulator:clang:latest:14.0
 ARCHS = x86_64
 endif
 
