@@ -9,7 +9,7 @@
       "views": [
         {
           "class": "DepictionMarkdownView",
-          "markdown": "Mull gives you a moment to change your mind. Tap Send in Messages and the button counts down before the message goes out; tap it to cancel. Phone and FaceTime calls get the same pause, with a full-screen countdown and buttons to cancel or call right away.\n\n- **Messages**: the Send button counts down, with a ring that drains and a haptic each second. Keeps counting if you leave the app.\n- **Delays**: separate times for the regular delay, the first message in a conversation, and messages with attachments. Adding an attachment during the countdown lengthens it.\n- **Short messages**: messages under a set length can send right away.\n- **Skip a conversation**: swipe a conversation to the left in Messages to turn its countdown off or on; a bolt marks it in the list.\n- **Calls**: Phone and FaceTime calls count down on a blurred full screen showing who is being called. Cancel stops the call; Call Now skips the wait. Works from recents, Contacts, Messages, notifications and more. Emergency calls are never delayed.\n- **Appearance**: countdown color, haptics and the progress ring can be changed.\n- **Control Center toggle** (needs CCSupport).\n- Translated into 13 languages."
+          "markdown": "Mull gives you a moment to change your mind. Tap Send in Messages and the button counts down before the message goes out; tap it to cancel. Phone and FaceTime calls get the same pause, with a full-screen countdown and buttons to cancel or call right away.\n\n- **Messages**: the Send button counts down, with a ring that drains and a haptic each second. Keeps counting if you leave the app. Works when replying from a notification too.\n- **Delays**: separate times for the regular delay, the first message in a conversation, and messages with attachments. Adding an attachment during the countdown lengthens it.\n- **Short messages**: messages under a set length can send right away.\n- **Skip a conversation**: swipe a conversation to the left in Messages to turn its countdown off or on; a bolt marks it in the list.\n- **Calls**: Phone and FaceTime calls count down on a blurred full screen showing who is being called. Cancel stops the call; Call Now skips the wait. Works from recents, Contacts, Messages, notifications and more. Emergency calls are never delayed.\n- **CarPlay**: the call countdown also shows on the car's screen, with Cancel and Call Now.\n- **Appearance**: countdown color, haptics and the progress ring can be changed.\n- **Control Center toggle** (needs CCSupport).\n- **RemoteCompanion add-on** (needs RemoteCompanion 4.5 or later): actions, triggers, conditions and settings for Mull.\n- Translated into 13 languages."
         },
         {
           "class": "DepictionSeparatorView"
@@ -44,6 +44,15 @@
       "tabname": "Changelog",
       "class": "DepictionStackView",
       "views": [
+        {
+          "class": "DepictionSubheaderView",
+          "title": "1.1.0",
+          "useBoldText": true
+        },
+        {
+          "class": "DepictionMarkdownView",
+          "markdown": "- Calls: with CarPlay connected, the countdown also shows on the car's screen, with Cancel and Call Now. Calls started with Siri count down too.\n- Messages: replying from a notification (pressing on it) counts down too.\n- RemoteCompanion add-on (needs RemoteCompanion 4.5 or later): turn Mull or Call Countdown on and off, set delays, pause for a while, and cancel or skip a countdown from any RemoteCompanion trigger. Triggers for countdowns starting, being cancelled or finishing, conditions, and Mull's settings on the add-on's page."
+        },
         {
           "class": "DepictionSubheaderView",
           "title": "1.0.2",

@@ -8,6 +8,7 @@ Mull gives you a moment to change your mind. Tap Send in Messages and the button
 
 - **Countdown on Send**: the button turns into a countdown in a color of your choice, with a ring that drains and a haptic each second. Tap it to cancel; the message stays in the field.
 - **Keeps going in the background**: leave the app and the message still goes out when the countdown ends.
+- **Replies from notifications**: pressing on a message notification to reply counts down the same way. Closing the notification during the countdown sends the reply right away.
 - **Delays**: one for regular messages, one for the first message in a conversation, one for messages with attachments. Adding an attachment during the countdown lengthens it to the attachment delay, counted from the tap.
 - **Short messages**: messages shorter than a set number of characters send right away.
 - **Skip a conversation**: swipe a conversation to the left in Messages to turn its countdown off or on. A bolt beside its date marks it. Reset Skipped Conversations in settings clears them all.
@@ -17,6 +18,7 @@ Mull gives you a moment to change your mind. Tap Send in Messages and the button
 ### Calls
 
 - **Phone and FaceTime**: a call counts down on a blurred full screen showing the contact's photo and name (or the number), and the kind of call: Phone Call, FaceTime Audio or FaceTime Video. Cancel stops the call; Call Now skips the wait.
+- **CarPlay**: with CarPlay connected, the countdown also shows on the car's screen, with Cancel and Call Now. Calls started with Siri count down too.
 - **Wherever the call starts**: recents, Contacts, contact cards, the keypad, Messages, missed-call notifications and more. The hold happens in the call service, so one place covers every route.
 - **Emergency calls are never delayed.** Only a plain outgoing call to a number longer than three digits is held, and nothing is held when the tweak can't tell for sure.
 - Off by default; switch on Call Countdown in settings.
@@ -26,6 +28,15 @@ Mull gives you a moment to change your mind. Tap Send in Messages and the button
 - Enabled, delays, minimum length, countdown color, haptics, progress ring, Call Countdown and its delay.
 - **Control Center toggle** (needs CCSupport) to turn the tweak on and off.
 - **Translations**: German, Spanish, French, Italian, Japanese, Korean, Dutch, Portuguese (Brazil), Russian, Chinese (Simplified and Traditional), Turkish and Polish. Machine-written and not reviewed by native speakers; corrections are welcome.
+
+### RemoteCompanion
+
+With [RemoteCompanion](https://github.com/saihgupr/remotecompanion) 4.5 or later, Mull adds an add-on there:
+
+- **Actions**: turn Mull on or off, turn Call Countdown on or off, set a delay, pause for a number of minutes, resume, and cancel or skip the countdown that's running.
+- **Triggers**: a call or message countdown starting, being cancelled, or finishing; Mull turning on, off or pausing.
+- **Conditions**: whether Mull is on, off or paused, whether Call Countdown is on, and which countdown is running.
+- **Settings**: Mull's settings, on the add-on's page in RemoteCompanion.
 
 ## Requirements
 
@@ -42,6 +53,8 @@ Mull gives you a moment to change your mind. Tap Send in Messages and the button
 | iOS 17.0 (rootless, device) | yes | yes |
 | iOS 18.6 (simulator) | yes | not testable |
 | iOS 26.3 (simulator) | yes | not testable |
+
+The CarPlay countdown was tested with Apple's CarPlay Simulator and an iPhone on iOS 17.0, including calls started with Siri; it hasn't been tried in a car yet, nor on iOS 14 (the simulator can't connect to it). Replying from a notification was tested on iOS 17.0.
 
 The roothide package builds but has not been run on a device. The names of the private methods the call code uses were checked on iOS 16.4, 18.0 and 18.6 and match iOS 17; whether calls behave identically there has not been seen.
 
@@ -83,7 +96,7 @@ Released through the [GoldenAppleGuy repo](https://goldenappleguy.github.io/repo
 | `prefs/` | Settings page (PreferenceLoader bundle) |
 | `prefs/Localization/generate.py` | Translations: writes each language's `Root.strings` (settings page) and `Tweak.strings` (countdown screen, swipe action); run after changing any text |
 | `ccmodule/` | Control Center toggle (CCSupport bundle) |
-| `layout/` | PreferenceLoader entry |
+| `layout/` | PreferenceLoader entry, and the RemoteCompanion add-on (`Library/RemoteCompanion/AddOns/mull.json`) |
 | `tools/update_repo.py`, `tools/depiction.json` | Publishing to the package repo, and its Sileo package page |
 
 ## How it works
@@ -91,6 +104,8 @@ Released through the [GoldenAppleGuy repo](https://goldenappleguy.github.io/repo
 **Messages.** The hook is on `-[CKChatController messageEntryViewSendButtonHit:]` (and the new-message and notification-reply controllers that override it). The first tap starts the countdown and returns without sending; when it ends, the original method runs. The countdown circle is drawn on the Send button, which is `sendButton` on iOS 14 to 17, `arrowButton` on iOS 18 and `glassSendButton` on iOS 26.
 
 **Calls.** `callservicesd` sees every call request before a call exists. The tweak holds the request in `-[CSDCallStateController dialWithRequest:displayContext:]` (and the FaceTime join step) while SpringBoard shows the countdown; the answer comes back through system notifications whose state carries the request. When the daemon hook is active, the per-app hooks (Phone, Contacts, FaceTime, in-call app) stand down, except for holding the app's request to open its call screen so nothing of it shows during the countdown.
+
+**CarPlay.** The car's home screen is its own process (`com.apple.CarPlayApp`). SpringBoard stays in charge of the countdown: while it shows one, it asks that process to show the same on the car's screen, and a tap there comes back to SpringBoard as if made on the phone.
 
 **Settings.** The settings page writes every change to its own files, since iOS saves preferences late and Messages is sandboxed away from the preferences service.
 

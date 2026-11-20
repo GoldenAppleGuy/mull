@@ -7,9 +7,19 @@
 #import <Preferences/PSSliderTableCell.h>
 #import <objc/runtime.h>
 #import <objc/message.h>
+#include <notify.h>
 
 #define SC_SETTINGS_FILE @"com.goldenappleguy.mull.settings.plist"
 #define SC_RESET_FILE @"com.goldenappleguy.mull.reset"
+#define SC_DOMAIN CFSTR("com.goldenappleguy.mull")
+#define SC_PAUSED_UNTIL_KEY CFSTR("PausedUntil") // set by RemoteCompanion's Pause: Mull is off until then
+
+// The end of a pause still to come, or nil
+static NSNumber *SCPausedUntil(void) {
+    CFPreferencesAppSynchronize(SC_DOMAIN);
+    id until = CFBridgingRelease(CFPreferencesCopyAppValue(SC_PAUSED_UNTIL_KEY, SC_DOMAIN));
+    return [until isKindOfClass:[NSNumber class]] && [until doubleValue] > NSDate.date.timeIntervalSince1970 ? until : nil;
+}
 
 // Where Messages looks for the files (rootless first)
 static NSArray<NSString *> *SCDirs(void);
@@ -47,17 +57,33 @@ static void SCWriteFile(NSString *name, NSData *data) {
     }
 }
 
+// Enabled shows off while paused, since Mull does nothing then
+- (id)readPreferenceValue:(PSSpecifier *)specifier {
+    if ([[specifier propertyForKey:@"key"] isEqualToString:@"Enabled"] && SCPausedUntil()) return @NO;
+    return [super readPreferenceValue:specifier];
+}
+
 // Every setting goes to Messages' file right away
 - (void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {
+    // Switching Mull on or off ends a pause
+    BOOL enabledSwitch = [[specifier propertyForKey:@"key"] isEqualToString:@"Enabled"];
+    if (enabledSwitch) {
+        CFPreferencesSetAppValue(SC_PAUSED_UNTIL_KEY, NULL, SC_DOMAIN);
+        CFPreferencesAppSynchronize(SC_DOMAIN); // saved before SpringBoard reads the preferences again
+    }
     [super setPreferenceValue:value specifier:specifier];
     NSMutableDictionary *all = [NSMutableDictionary dictionary];
     for (PSSpecifier *s in self.specifiers) {
         NSString *key = [s propertyForKey:@"key"];
-        id v = key ? [self readPreferenceValue:s] : nil;
+        id v = key ? [super readPreferenceValue:s] : nil;
         if (key && v) all[key] = v;
     }
+    // A pause carries on through any other change
+    NSNumber *pausedUntil = enabledSwitch ? nil : SCPausedUntil();
+    if (pausedUntil) all[(__bridge NSString *)SC_PAUSED_UNTIL_KEY] = pausedUntil;
     NSData *data = [NSPropertyListSerialization dataWithPropertyList:all format:NSPropertyListBinaryFormat_v1_0 options:0 error:nil];
     if (data) SCWriteFile(SC_SETTINGS_FILE, data);
+    notify_post("com.goldenappleguy.mull.changed"); // for RemoteCompanion's add-on
 }
 
 // Messages clears its per-conversation exceptions when it sees a newer stamp than the one it last applied

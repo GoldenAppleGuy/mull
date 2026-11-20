@@ -38,3 +38,7 @@ ifneq ($(SIM),1)
 SUBPROJECTS += prefs ccmodule
 include $(THEOS_MAKE_PATH)/aggregate.mk
 endif
+
+# The RemoteCompanion add-on must offer the same settings as the settings page
+before-package::
+	python3 tools/check_addon.py

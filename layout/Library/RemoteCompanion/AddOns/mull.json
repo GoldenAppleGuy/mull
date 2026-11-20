@@ -1,0 +1,149 @@
+{
+  "api": 1,
+  "id": "mull",
+  "name": "Mull",
+  "icon": "mull.png",
+  "requires": ["/Library/MobileSubstrate/DynamicLibraries/Mull.dylib"],
+  "actions": [
+    {
+      "command": "turn",
+      "name": "Turn On or Off",
+      "icon": "power",
+      "options": [
+        { "id": "mode", "title": "Mull", "choices": [
+          { "word": "toggle", "label": "Toggle" },
+          { "word": "on", "label": "On" },
+          { "word": "off", "label": "Off" } ] }
+      ],
+      "run": [
+        { "notify": "com.goldenappleguy.mull.set.enabled", "state": 2, "if": { "var": "mode", "unset": true } },
+        { "notify": "com.goldenappleguy.mull.set.enabled", "state": 2, "if": { "var": "mode", "is": "toggle" } },
+        { "notify": "com.goldenappleguy.mull.set.enabled", "state": 1, "if": { "var": "mode", "is": "on" } },
+        { "notify": "com.goldenappleguy.mull.set.enabled", "state": 0, "if": { "var": "mode", "is": "off" } }
+      ],
+      "banner": { "await": "com.goldenappleguy.mull.enabled", "states": { "0": "Off", "1": "On", "2": "Paused" }, "timeout": 3 }
+    },
+    {
+      "command": "calls",
+      "name": "Call Countdown",
+      "icon": "phone.fill",
+      "options": [
+        { "id": "mode", "title": "Call Countdown", "choices": [
+          { "word": "toggle", "label": "Toggle" },
+          { "word": "on", "label": "On" },
+          { "word": "off", "label": "Off" } ] }
+      ],
+      "run": [
+        { "notify": "com.goldenappleguy.mull.set.calls", "state": 2, "if": { "var": "mode", "unset": true } },
+        { "notify": "com.goldenappleguy.mull.set.calls", "state": 2, "if": { "var": "mode", "is": "toggle" } },
+        { "notify": "com.goldenappleguy.mull.set.calls", "state": 1, "if": { "var": "mode", "is": "on" } },
+        { "notify": "com.goldenappleguy.mull.set.calls", "state": 0, "if": { "var": "mode", "is": "off" } }
+      ],
+      "banner": { "title": "Call Countdown", "await": "com.goldenappleguy.mull.calls", "states": { "0": "Off", "1": "On" }, "timeout": 3 }
+    },
+    {
+      "command": "delay",
+      "name": "Set Delay",
+      "icon": "timer",
+      "options": [
+        { "id": "kind", "title": "Delay", "choices": [
+          { "word": "messages", "label": "Messages" },
+          { "word": "first", "label": "First Message" },
+          { "word": "attachments", "label": "Attachments" },
+          { "word": "calls", "label": "Calls" } ] }
+      ],
+      "input": { "title": "Seconds", "placeholder": "3", "number": true },
+      "run": [
+        { "defaults": { "domain": "com.goldenappleguy.mull", "key": "seconds", "value": "{input}", "type": "int" }, "if": { "var": "kind", "unset": true } },
+        { "defaults": { "domain": "com.goldenappleguy.mull", "key": "seconds", "value": "{input}", "type": "int" }, "if": { "var": "kind", "is": "messages" } },
+        { "defaults": { "domain": "com.goldenappleguy.mull", "key": "NewSeconds", "value": "{input}", "type": "int" }, "if": { "var": "kind", "is": "first" } },
+        { "defaults": { "domain": "com.goldenappleguy.mull", "key": "AttachmentSeconds", "value": "{input}", "type": "int" }, "if": { "var": "kind", "is": "attachments" } },
+        { "defaults": { "domain": "com.goldenappleguy.mull", "key": "CallSeconds", "value": "{input}", "type": "int" }, "if": { "var": "kind", "is": "calls" } },
+        { "notify": "com.goldenappleguy.mull.changed" }
+      ],
+      "banner": { "subtitle": "{input} s" }
+    },
+    {
+      "command": "pause",
+      "name": "Pause",
+      "icon": "pause.circle.fill",
+      "input": { "title": "Minutes", "placeholder": "30", "number": true },
+      "run": [
+        { "defaults": { "domain": "com.goldenappleguy.mull", "key": "PauseMinutes", "value": 30 } },
+        { "defaults": { "domain": "com.goldenappleguy.mull", "key": "PauseMinutes", "value": "{input}", "type": "int" } },
+        { "notify": "com.goldenappleguy.mull.pause" }
+      ],
+      "banner": { "await": "com.goldenappleguy.mull.enabled", "states": { "0": "Off", "1": "On", "2": "Paused" }, "timeout": 3 }
+    },
+    {
+      "command": "resume",
+      "name": "Resume",
+      "icon": "play.circle.fill",
+      "run": [ { "notify": "com.goldenappleguy.mull.resume" } ],
+      "banner": { "await": "com.goldenappleguy.mull.enabled", "states": { "0": "Off", "1": "On", "2": "Paused" }, "timeout": 3 }
+    },
+    {
+      "command": "cancel",
+      "name": "Cancel Countdown",
+      "icon": "xmark.circle.fill",
+      "run": [ { "notify": "com.goldenappleguy.mull.cancel" } ],
+      "banner": { "await": "com.goldenappleguy.mull.running", "states": { "0": "Cancelled" }, "timeout": 2 }
+    },
+    {
+      "command": "now",
+      "name": "Skip Countdown",
+      "icon": "forward.end.fill",
+      "run": [ { "notify": "com.goldenappleguy.mull.now" } ],
+      "banner": { "await": "com.goldenappleguy.mull.running", "states": { "0": "Skipped" }, "timeout": 2 }
+    }
+  ],
+  "conditions": [
+    { "id": "enabled", "name": "Mull", "type": "choice",
+      "notifyState": "com.goldenappleguy.mull.enabled", "choices": { "0": "Off", "1": "On", "2": "Paused" } },
+    { "id": "calls", "name": "Call Countdown", "icon": "phone.fill", "type": "choice",
+      "notifyState": "com.goldenappleguy.mull.calls", "choices": { "0": "Off", "1": "On" } },
+    { "id": "running", "name": "Countdown Running", "type": "choice",
+      "notifyState": "com.goldenappleguy.mull.running", "choices": { "0": "None", "1": "Call", "2": "Message", "3": "Both" } }
+  ],
+  "events": [
+    { "notify": "com.goldenappleguy.mull.call",
+      "trigger": { "id": "call", "name": "Call Countdown", "icon": "phone.fill",
+                   "states": { "1": "Started", "2": "Cancelled", "3": "Finished" } } },
+    { "notify": "com.goldenappleguy.mull.message",
+      "trigger": { "id": "message", "name": "Message Countdown", "icon": "message.fill",
+                   "states": { "1": "Started", "2": "Cancelled", "3": "Sent" } } },
+    { "notify": "com.goldenappleguy.mull.enabled",
+      "trigger": { "id": "status", "name": "Mull Status", "icon": "power",
+                   "states": { "0": "Off", "1": "On", "2": "Paused" } } }
+  ],
+  "settings": [
+    { "id": "enabled", "title": "Enabled", "type": "switch", "default": true,
+      "domain": "com.goldenappleguy.mull", "key": "Enabled", "notify": "com.goldenappleguy.mull.changed" },
+    { "id": "delay", "title": "Delay", "type": "number", "min": 1, "max": 10, "unit": "s", "default": 3,
+      "domain": "com.goldenappleguy.mull", "key": "seconds", "notify": "com.goldenappleguy.mull.changed" },
+    { "id": "first", "title": "First Message", "type": "number", "min": 0, "max": 30, "unit": "s", "default": 0,
+      "note": "0 uses the regular delay.",
+      "domain": "com.goldenappleguy.mull", "key": "NewSeconds", "notify": "com.goldenappleguy.mull.changed" },
+    { "id": "attachments", "title": "Attachments", "type": "number", "min": 0, "max": 10, "unit": "s", "default": 0,
+      "note": "0 uses the regular delay.",
+      "domain": "com.goldenappleguy.mull", "key": "AttachmentSeconds", "notify": "com.goldenappleguy.mull.changed" },
+    { "id": "min_length", "title": "Minimum Length", "type": "number", "min": 0, "max": 30, "default": 0,
+      "note": "Shorter messages send right away. 0 counts down for every message.",
+      "domain": "com.goldenappleguy.mull", "key": "MinLength", "notify": "com.goldenappleguy.mull.changed" },
+    { "id": "color", "title": "Countdown Color", "type": "choice", "default": "red",
+      "choices": [ { "value": "red", "label": "Red" }, { "value": "orange", "label": "Orange" },
+                   { "value": "pink", "label": "Pink" }, { "value": "purple", "label": "Purple" },
+                   { "value": "blue", "label": "Blue" }, { "value": "green", "label": "Green" },
+                   { "value": "gray", "label": "Gray" } ],
+      "domain": "com.goldenappleguy.mull", "key": "Color", "notify": "com.goldenappleguy.mull.changed" },
+    { "id": "haptics", "title": "Haptics", "type": "switch", "default": true,
+      "domain": "com.goldenappleguy.mull", "key": "Haptics", "notify": "com.goldenappleguy.mull.changed" },
+    { "id": "ring", "title": "Progress Ring", "type": "switch", "default": true,
+      "domain": "com.goldenappleguy.mull", "key": "Ring", "notify": "com.goldenappleguy.mull.changed" },
+    { "id": "call_countdown", "title": "Call Countdown", "type": "switch", "default": false,
+      "note": "Emergency calls are never delayed.",
+      "domain": "com.goldenappleguy.mull", "key": "CallGuard", "notify": "com.goldenappleguy.mull.changed" },
+    { "id": "call_delay", "title": "Call Delay", "type": "number", "min": 1, "max": 10, "unit": "s", "default": 3,
+      "domain": "com.goldenappleguy.mull", "key": "CallSeconds", "notify": "com.goldenappleguy.mull.changed" }
+  ]
+}

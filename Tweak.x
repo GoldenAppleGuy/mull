@@ -96,12 +96,76 @@ static NSArray<NSString *> *SCPrefDirs(void) {
 #endif
 }
 
-static NSDictionary *SCSettings(void) {
+// The settings as stored, with a pause still in effect left in place
+static NSDictionary *SCStoredSettings(void) {
     for (NSString *dir in SCPrefDirs()) {
         NSDictionary *d = [NSDictionary dictionaryWithContentsOfFile:[dir stringByAppendingPathComponent:SC_SETTINGS_FILE]];
         if (d) return d;
     }
     return @{};
+}
+
+// Until this time (seconds since 1970), Mull counts as switched off. Set by RemoteCompanion's Pause action.
+#define SC_PAUSED_UNTIL_KEY @"PausedUntil"
+static BOOL SCIsPaused(NSDictionary *stored) {
+    id until = stored[SC_PAUSED_UNTIL_KEY];
+    return [until respondsToSelector:@selector(doubleValue)] && [until doubleValue] > NSDate.date.timeIntervalSince1970;
+}
+
+// The settings in effect: while paused, Enabled reads as off
+static NSDictionary *SCSettings(void) {
+    NSDictionary *stored = SCStoredSettings();
+    if (!SCIsPaused(stored)) return stored;
+    NSMutableDictionary *settings = [stored mutableCopy];
+    settings[@"Enabled"] = @NO;
+    return settings;
+}
+
+// Signals for RemoteCompanion's add-on (layout/Library/RemoteCompanion/AddOns/mull.json): what happened,
+// carried in a notification's state, which also stays readable afterwards for its conditions
+#define SC_EVENT_CALL "com.goldenappleguy.mull.call"         // 1 countdown started, 2 cancelled, 3 went ahead
+#define SC_EVENT_MESSAGE "com.goldenappleguy.mull.message"   // 1 countdown started, 2 cancelled, 3 sent
+#define SC_STATE_RUNNING "com.goldenappleguy.mull.running"   // flags: 1 a call's countdown, 2 a message's (3 both)
+#define SC_STATE_ENABLED "com.goldenappleguy.mull.enabled"   // 0 off, 1 on, 2 paused
+#define SC_STATE_CALLS "com.goldenappleguy.mull.calls"       // Call Countdown: 0 off, 1 on
+
+// Sets a notification's state and posts it
+static void SCPostState(const char *name, uint64_t state) {
+    int token;
+    if (notify_register_check(name, &token) != NOTIFY_STATUS_OK) return;
+    notify_set_state(token, state);
+    notify_post(name);
+    notify_cancel(token);
+}
+
+// A notification's current state, by its token or by its name (0 when it can't be read)
+static uint64_t SCNoteState(int token) {
+    uint64_t state = 0;
+    notify_get_state(token, &state);
+    return state;
+}
+
+static uint64_t SCReadState(const char *name) {
+    int token;
+    if (notify_register_check(name, &token) != NOTIFY_STATUS_OK) return 0;
+    uint64_t state = SCNoteState(token);
+    notify_cancel(token);
+    return state;
+}
+
+// A call's countdown (in SpringBoard or a phone app) and a message's (in Messages) can overlap: each sets or
+// clears only its own flag in the running state
+#define SC_RUNNING_CALL 1
+#define SC_RUNNING_MESSAGE 2
+static void SCSetRunning(uint64_t flag, BOOL running) {
+    int token;
+    if (notify_register_check(SC_STATE_RUNNING, &token) != NOTIFY_STATUS_OK) return;
+    uint64_t old = SCNoteState(token), state = running ? (old | flag) : (old & ~flag);
+    if (state != old) {
+        notify_set_state(token, state);
+        notify_post(SC_STATE_RUNNING);
+    }
+    notify_cancel(token);
 }
 
 static NSInteger SCInteger(NSDictionary *s, NSString *key, NSInteger fallback) {
@@ -114,12 +178,26 @@ static BOOL SCBoolean(NSDictionary *s, NSString *key, BOOL fallback) {
     return [v respondsToSelector:@selector(boolValue)] ? [v boolValue] : fallback;
 }
 
+// The countdown colors, by the names the settings store (Root.plist and mull.json list the same names). The
+// car's screen receives a color as its place in this list, so new colors go at the end.
+static NSArray<NSString *> *SCColorNames(void) {
+    return @[@"red", @"orange", @"pink", @"purple", @"blue", @"green", @"gray"];
+}
+
+static UIColor *SCColorAt(NSUInteger index) {
+    NSArray<UIColor *> *colors = @[UIColor.systemRedColor, UIColor.systemOrangeColor, UIColor.systemPinkColor, UIColor.systemPurpleColor,
+                                   UIColor.systemBlueColor, UIColor.systemGreenColor, UIColor.systemGrayColor];
+    return index < colors.count ? colors[index] : colors[0];
+}
+
+// The place of a color name in the list; red for anything unknown
+static NSUInteger SCColorIndex(NSString *name) {
+    NSUInteger index = name ? [SCColorNames() indexOfObject:name] : NSNotFound;
+    return index == NSNotFound ? 0 : index;
+}
+
 static UIColor *SCColor(NSString *name) {
-    NSDictionary *colors = @{@"red": UIColor.systemRedColor, @"orange": UIColor.systemOrangeColor,
-                             @"pink": UIColor.systemPinkColor, @"purple": UIColor.systemPurpleColor,
-                             @"blue": UIColor.systemBlueColor, @"green": UIColor.systemGreenColor,
-                             @"gray": UIColor.systemGrayColor};
-    return colors[name] ?: UIColor.systemRedColor;
+    return SCColorAt(SCColorIndex(name));
 }
 
 #pragma mark - Conversation exceptions
@@ -135,11 +213,24 @@ static NSString *SCConversationID(id conversation) {
     return nil;
 }
 
+// Where the skipped conversations are kept: Messages' own preferences, which the notification view (a separate
+// process, allowed to use them) shares
+static NSUserDefaults *SCDefaults(void) {
+    static NSUserDefaults *defaults;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        BOOL app = [NSBundle.mainBundle.bundleIdentifier isEqualToString:@"com.apple.MobileSMS"];
+        defaults = app ? NSUserDefaults.standardUserDefaults : [[NSUserDefaults alloc] initWithSuiteName:@"com.apple.MobileSMS"];
+        if (!defaults) defaults = NSUserDefaults.standardUserDefaults;
+    });
+    return defaults;
+}
+
 // The settings page asks for a reset by writing a newer stamp than the one applied last. Checked whenever a
 // conversation's state is looked at, but only reads the file again when it has changed.
 static void SCApplyReset(void) {
     static time_t lastSeen;
-    NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+    NSUserDefaults *defaults = SCDefaults();
     for (NSString *dir in SCPrefDirs()) {
         NSString *path = [dir stringByAppendingPathComponent:SC_RESET_FILE];
         struct stat info;
@@ -157,16 +248,16 @@ static void SCApplyReset(void) {
 static BOOL SCIsExempt(id conversation) {
     SCApplyReset();
     NSString *ident = SCConversationID(conversation);
-    return ident && [[NSUserDefaults.standardUserDefaults arrayForKey:SC_EXEMPT_KEY] containsObject:ident];
+    return ident && [[SCDefaults() arrayForKey:SC_EXEMPT_KEY] containsObject:ident];
 }
 
 static void SCToggleExempt(id conversation) {
     NSString *ident = SCConversationID(conversation);
     if (!ident) return;
-    NSMutableArray *list = [[NSUserDefaults.standardUserDefaults arrayForKey:SC_EXEMPT_KEY] mutableCopy] ?: [NSMutableArray array];
+    NSMutableArray *list = [[SCDefaults() arrayForKey:SC_EXEMPT_KEY] mutableCopy] ?: [NSMutableArray array];
     if ([list containsObject:ident]) [list removeObject:ident];
     else [list addObject:ident];
-    [NSUserDefaults.standardUserDefaults setObject:list forKey:SC_EXEMPT_KEY];
+    [SCDefaults() setObject:list forKey:SC_EXEMPT_KEY];
 }
 
 #pragma mark - Exemption markers
@@ -236,6 +327,7 @@ static UILabel *SCOverlay(void) {
 }
 
 static void SCStop(void) {
+    if (gTimer) SCSetRunning(SC_RUNNING_MESSAGE, NO);
     [gTimer invalidate];
     gTimer = nil;
     [SCOverlay() removeFromSuperview];
@@ -257,6 +349,7 @@ static void SCSendNow(void) {
     CKMessageEntryView *entryView = gEntryView;
     SCStop();
     if (!controller || !entryView) return;
+    SCPostState(SC_EVENT_MESSAGE, 3);
     gBypass = YES;
     [controller messageEntryViewSendButtonHit:entryView];
     gBypass = NO;
@@ -355,6 +448,7 @@ static void SCTick(void) {
     }
     CKComposition *composition = gEntryView.composition;
     if (composition && [composition respondsToSelector:@selector(hasContent)] && ![composition hasContent]) {
+        SCPostState(SC_EVENT_MESSAGE, 2);
         SCStop();
         return;
     }
@@ -417,6 +511,7 @@ static BOOL SCHandleSend(CKChatController *controller, CKMessageEntryView *entry
     NSDictionary *settings = SCSettings();
     if (gTimer) {
         SCHaptic(UIImpactFeedbackStyleRigid);
+        SCPostState(SC_EVENT_MESSAGE, 2);
         SCStop();
         return YES;
     }
@@ -440,6 +535,8 @@ static BOOL SCHandleSend(CKChatController *controller, CKMessageEntryView *entry
     }];
     SCShowOverlay(gColor);
     SCHaptic(UIImpactFeedbackStyleLight);
+    SCPostState(SC_EVENT_MESSAGE, 1);
+    SCSetRunning(SC_RUNNING_MESSAGE, YES);
     gTimer = [NSTimer scheduledTimerWithTimeInterval:0.1 repeats:YES block:^(NSTimer *t) {
         SCTick();
     }];
@@ -514,6 +611,13 @@ static UISwipeActionsConfiguration *SCAddAction(UISwipeActionsConfiguration *ori
     if (SCHandleSend(self, entryView)) return;
     %orig;
 }
+
+// A reply from a notification lives only as long as the notification's view: closing it during the countdown
+// sends the message at once, as changing conversations does, so it isn't lost with the view
+- (void)viewWillDisappear:(BOOL)animated {
+    if (gTimer && gController == self) SCSendNow();
+    %orig;
+}
 %end
 %end
 
@@ -572,6 +676,7 @@ static BOOL SCInSpringBoard(void);
 static NSString *SCJoinRequestNumber(id request, BOOL *hold);
 static UIWindow *gCallWindow;
 static NSTimer *gCallTimer;
+static uint64_t gCarRequest; // the request also shown on the car's screen
 
 static NSString *SCRequestNumber(id request) {
     id handle = [request respondsToSelector:@selector(handle)] ? ((id (*)(id, SEL))objc_msgSend)(request, @selector(handle)) : nil;
@@ -597,6 +702,7 @@ static BOOL SCCallIsExempt(TUCallCenter *center, id request) {
 static void SCDismissCallWindow(void) {
     [gCallTimer invalidate];
     gCallTimer = nil;
+    gCarRequest = 0;
     UIWindow *window = gCallWindow;
     window.hidden = YES;
     gCallWindow = nil;
@@ -687,22 +793,10 @@ static BOOL gRemotePending;
 
 // The daemon sets this once its hook is in place; the per-app guards then stand down
 static BOOL SCDaemonAlive(void) {
-    int token;
-    uint64_t state = 0;
-    if (notify_register_check(SC_NOTE_ALIVE, &token) != NOTIFY_STATUS_OK) return NO;
-    notify_get_state(token, &state);
-    notify_cancel(token);
-    return state == 1;
+    return SCReadState(SC_NOTE_ALIVE) == 1;
 }
 static NSString *gCallKind = @"phone";
 
-static void SCPostState(const char *name, uint64_t state) {
-    int token;
-    if (notify_register_check(name, &token) != NOTIFY_STATUS_OK) return;
-    notify_set_state(token, state);
-    notify_post(name);
-    notify_cancel(token);
-}
 
 static void SCShowCallGuard(NSString *number, NSInteger seconds, UIColor *color, void (^proceed)(void), void (^cancelled)(void));
 
@@ -743,6 +837,15 @@ static NSString *SCKindForURL(NSURL *url) {
     return @"phone";
 }
 
+// The kind of call as it travels in a notification's state: 2 bits
+static uint64_t SCCodeForKind(NSString *kind) {
+    return [kind isEqualToString:@"video"] ? 2 : ([kind isEqualToString:@"audio"] ? 1 : 0);
+}
+
+static NSString *SCKindForCode(uint64_t code) {
+    return code == 2 ? @"video" : (code == 1 ? @"audio" : @"phone");
+}
+
 static NSString *SCLabelForKind(NSString *kind) {
     if ([kind isEqualToString:@"video"]) return SCLocalized(@"FaceTime Video");
     if ([kind isEqualToString:@"audio"]) return SCLocalized(@"FaceTime Audio");
@@ -773,8 +876,7 @@ static void SCRemoteCallGuard(NSString *text, NSString *kind, BOOL fromApp, disp
     };
     __block BOOL acknowledged = NO;
     notify_register_dispatch(SC_NOTE_RESPONSE, &responseToken, queue, ^(int t) {
-        uint64_t state = 0;
-        notify_get_state(t, &state);
+        uint64_t state = SCNoteState(t);
         if ((state >> 8) != identifier) return;
         if ((state & 0xFF) == 3) { acknowledged = YES; return; } // SpringBoard has the request
         finish((state & 0xFF) == 2);
@@ -791,39 +893,40 @@ static void SCRemoteCallGuard(NSString *text, NSString *kind, BOOL fromApp, disp
         notify_set_state(*slots[part], (identifier << 48) | payload[part]);
     }
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 62 * NSEC_PER_SEC), queue, ^{ notify_cancel(t0); notify_cancel(t1); notify_cancel(t2); notify_cancel(t3); });
-    SCPostState(SC_NOTE_A, (identifier << 48) | ((uint64_t)count << 40) | ((uint64_t)([kind isEqualToString:@"video"] ? 2 : ([kind isEqualToString:@"audio"] ? 1 : 0)) << 36) | ((uint64_t)(fromApp ? 1 : 0) << 38));
+    SCPostState(SC_NOTE_A, (identifier << 48) | ((uint64_t)count << 40) | (SCCodeForKind(kind) << 36) | ((uint64_t)(fromApp ? 1 : 0) << 38));
 }
 
 // SpringBoard's side: shows the countdown for a request and sends back the answer
 
 static NSMutableDictionary<NSString *, NSDate *> *gApproved;
 
-static void SCHandleRemoteRequest(void) {
-    int a;
-    uint64_t meta = 0;
-    if (notify_register_check(SC_NOTE_A, &a) != NOTIFY_STATUS_OK) return;
-    notify_get_state(a, &meta);
-    notify_cancel(a);
-    uint64_t identifier = meta >> 48;
-    NSUInteger count = (NSUInteger)((meta >> 40) & 0x3F);
-    NSUInteger kindCode = (NSUInteger)((meta >> 36) & 3);
-    BOOL fromApp = (meta >> 38) & 1;
-    if (identifier == 0) return;
+// The text of a request (who is called), or nil when the payload belongs to another request
+static NSString *SCReadPayload(uint64_t identifier, NSUInteger count) {
     NSString *alphabet = SC_ALPHABET;
     NSMutableString *text = [NSMutableString string];
     for (int part = 0; part < 4; part++) {
-        int token;
-        uint64_t state = 0;
-        if (notify_register_check(SCPayloadName(part), &token) != NOTIFY_STATUS_OK) return;
-        notify_get_state(token, &state);
-        notify_cancel(token);
-        if ((state >> 48) != identifier) return;
+        uint64_t state = SCReadState(SCPayloadName(part));
+        if ((state >> 48) != identifier) return nil;
         for (int i = 0; i < 8 && (NSUInteger)(part * 8 + i) < count; i++) {
             NSUInteger index = (NSUInteger)((state >> (6 * i)) & 0x3F);
             if (index >= 1 && index <= alphabet.length) [text appendString:[alphabet substringWithRange:NSMakeRange(index - 1, 1)]];
         }
     }
-    gCallKind = kindCode == 2 ? @"video" : (kindCode == 1 ? @"audio" : @"phone");
+    return text;
+}
+
+static void SCCarShow(uint64_t identifier, NSUInteger count, NSUInteger kindCode, NSInteger seconds, NSString *colorName);
+
+static void SCHandleRemoteRequest(void) {
+    uint64_t meta = SCReadState(SC_NOTE_A);
+    uint64_t identifier = meta >> 48;
+    NSUInteger count = (NSUInteger)((meta >> 40) & 0x3F);
+    NSUInteger kindCode = (NSUInteger)((meta >> 36) & 3);
+    BOOL fromApp = (meta >> 38) & 1;
+    if (identifier == 0) return;
+    NSString *text = SCReadPayload(identifier, count);
+    if (!text) return;
+    gCallKind = SCKindForCode(kindCode);
     SCPostState(SC_NOTE_RESPONSE, (identifier << 8) | 3); // received
     // The app asked first (before it opened the call screen) and was let through; the call service asks again
     // a moment later for the same call, which needs no second countdown
@@ -862,6 +965,8 @@ static void SCHandleRemoteRequest(void) {
         closeCallScreen();
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.35 * NSEC_PER_SEC), dispatch_get_main_queue(), closeCallScreen);
     });
+    // The same countdown on the car's screen, when CarPlay is connected
+    if (gCallWindow) SCCarShow(identifier, count, kindCode, seconds, settings[@"Color"]);
 }
 
 static void SCShowCallGuard(NSString *number, NSInteger seconds, UIColor *color, void (^proceed)(void), void (^cancelled)(void)) {
@@ -872,6 +977,20 @@ static void SCShowCallGuard(NSString *number, NSInteger seconds, UIColor *color,
         else proceed();
         return;
     }
+    // Tells RemoteCompanion's add-on how the countdown went
+    SCPostState(SC_EVENT_CALL, 1);
+    SCSetRunning(SC_RUNNING_CALL, YES);
+    void (^goAhead)(void) = proceed, (^stopped)(void) = cancelled;
+    proceed = ^{
+        SCSetRunning(SC_RUNNING_CALL, NO);
+        SCPostState(SC_EVENT_CALL, 3);
+        goAhead();
+    };
+    cancelled = ^{
+        SCSetRunning(SC_RUNNING_CALL, NO);
+        SCPostState(SC_EVENT_CALL, 2);
+        if (stopped) stopped();
+    };
     UIImage *photo = nil;
     NSString *name = SCNameForNumber(number, &photo);
     gCallCancelled = [cancelled copy];
@@ -1029,6 +1148,238 @@ static void SCShowCallGuard(NSString *number, NSInteger seconds, UIColor *color,
     }];
     [[NSRunLoop mainRunLoop] addTimer:gCallTimer forMode:NSRunLoopCommonModes];
     [gCallTimer fire];
+}
+
+#pragma mark - CarPlay
+
+// SpringBoard stays in charge of the countdown. While it shows one, it asks the CarPlay home screen process
+// to show the same thing on the car's screen; a tap there comes back to SpringBoard as if made on the phone,
+// and the car's copy closes when SpringBoard sends its answer to the call service.
+// Show state: bits 48-63 request id, 40-45 text length, 36-37 kind, 8-15 seconds, 0-3 color.
+// Answer state: request id << 8, then 1 call now or 2 cancel.
+#define SC_NOTE_CAR_SHOW "com.goldenappleguy.mull.carplay.show"
+#define SC_NOTE_CAR_ANSWER "com.goldenappleguy.mull.carplay.answer"
+
+static void SCCarShow(uint64_t identifier, NSUInteger count, NSUInteger kindCode, NSInteger seconds, NSString *colorName) {
+    NSUInteger color = SCColorIndex(colorName);
+    gCarRequest = identifier;
+    SCPostState(SC_NOTE_CAR_SHOW, (identifier << 48) | ((uint64_t)count << 40) | ((uint64_t)kindCode << 36) | ((uint64_t)seconds << 8) | color);
+}
+
+// SpringBoard's side: a tap on the car's screen
+static void SCCarAnswered(uint64_t state) {
+    if (!gCallWindow || gCarRequest == 0 || (state >> 8) != gCarRequest) return;
+    if ((state & 0xFF) == 2) [SCCallCancel cancel];
+    else if ((state & 0xFF) == 1) [SCCallCancel callNow];
+}
+
+// The car's side, in the CarPlay home screen process
+static UIWindow *gCarWindow;
+static NSTimer *gCarTimer;
+static uint64_t gCarShown;
+
+static void SCCarDismiss(void) {
+    [gCarTimer invalidate];
+    gCarTimer = nil;
+    gCarShown = 0;
+    UIWindow *window = gCarWindow;
+    gCarWindow = nil;
+    if (!window) return;
+    [UIView animateWithDuration:0.2 animations:^{ window.alpha = 0; } completion:^(BOOL done) { window.hidden = YES; }];
+}
+
+@interface SCCarActions : NSObject
++ (void)cancel;
++ (void)callNow;
+@end
+
+@implementation SCCarActions
++ (void)answer:(uint64_t)code {
+    if (!gCarShown) return;
+    SCPostState(SC_NOTE_CAR_ANSWER, (gCarShown << 8) | code);
+    SCCarDismiss();
+}
++ (void)cancel { [self answer:2]; }
++ (void)callNow { [self answer:1]; }
+@end
+
+// The car's own display: the biggest scene the CarPlay process has on screen (it may also drive smaller
+// ones, such as an instrument cluster)
+static UIWindowScene *SCCarScene(void) {
+    UIWindowScene *best = nil;
+    CGFloat bestArea = 0;
+    for (UIScene *candidate in UIApplication.sharedApplication.connectedScenes) {
+        if (![candidate isKindOfClass:[UIWindowScene class]]) continue;
+        UIWindowScene *scene = (UIWindowScene *)candidate;
+        CGRect bounds = scene.coordinateSpace.bounds;
+        if (scene.activationState == UISceneActivationStateUnattached || scene.activationState == UISceneActivationStateBackground) continue;
+        CGFloat area = bounds.size.width * bounds.size.height;
+        if (area > bestArea) { best = scene; bestArea = area; }
+    }
+    return best;
+}
+
+static UILabel *SCCarLabel(NSString *text, UIFont *font, CGFloat alpha) {
+    UILabel *label = [UILabel new];
+    label.text = text;
+    label.font = font;
+    label.textColor = [UIColor colorWithWhite:1 alpha:alpha];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.adjustsFontSizeToFitWidth = YES;
+    label.minimumScaleFactor = 0.5;
+    return label;
+}
+
+static void SCCarHandleShow(void) {
+    uint64_t state = SCReadState(SC_NOTE_CAR_SHOW);
+    uint64_t identifier = state >> 48;
+    if (identifier == 0 || identifier == gCarShown) return;
+    NSString *number = SCReadPayload(identifier, (NSUInteger)((state >> 40) & 0x3F));
+    if (!number) return;
+    NSUInteger kindCode = (NSUInteger)((state >> 36) & 3);
+    NSInteger seconds = MAX(1, MIN(30, (NSInteger)((state >> 8) & 0xFF)));
+    NSUInteger colorIndex = (NSUInteger)(state & 0xF);
+    UIColor *color = SCColorAt(colorIndex);
+    UIWindowScene *scene = SCCarScene();
+    if (!scene) return;
+    if (gCarWindow) SCCarDismiss();
+
+    UIWindow *window = [[UIWindow alloc] initWithWindowScene:scene];
+    window.windowLevel = UIWindowLevelAlert + 100;
+    window.backgroundColor = UIColor.clearColor;
+    UIViewController *root = [UIViewController new];
+    window.rootViewController = root;
+    UIVisualEffectView *blur = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemMaterialDark]];
+    blur.frame = window.bounds;
+    blur.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [root.view addSubview:blur];
+    UIView *content = blur.contentView;
+    window.alpha = 0;
+    window.hidden = NO;
+    [window layoutIfNeeded];
+
+    // Car screens are wide: who is called on the left, the countdown and the buttons on the right. The
+    // safe area keeps clear of the CarPlay dock and the screen's rounded corners.
+    UIEdgeInsets safe = window.safeAreaInsets;
+    CGRect area = UIEdgeInsetsInsetRect(window.bounds, safe);
+    BOOL wide = area.size.width >= area.size.height * 1.2;
+    CGRect left = area, right = area;
+    if (wide) CGRectDivide(area, &left, &right, area.size.width / 2, CGRectMinXEdge);
+    else CGRectDivide(area, &left, &right, area.size.height * 0.45, CGRectMinYEdge);
+
+    CGFloat avatar = MIN(88, left.size.height * 0.32);
+    // Room for the number under the name, which comes in once the contact is found
+    CGFloat blockHeight = 22 + 8 + avatar + 10 + 34 + 22;
+    CGFloat y = CGRectGetMidY(left) - blockHeight / 2;
+    UILabel *kind = SCCarLabel(SCLabelForKind(SCKindForCode(kindCode)), [UIFont systemFontOfSize:17], 0.7);
+    kind.frame = CGRectMake(CGRectGetMinX(left) + 12, y, left.size.width - 24, 22);
+    [content addSubview:kind];
+    UIImageView *face = [[UIImageView alloc] initWithFrame:CGRectMake(CGRectGetMidX(left) - avatar / 2, CGRectGetMaxY(kind.frame) + 8, avatar, avatar)];
+    face.contentMode = UIViewContentModeScaleAspectFill;
+    face.clipsToBounds = YES;
+    face.layer.cornerRadius = avatar / 2;
+    face.tintColor = [UIColor colorWithWhite:1 alpha:0.5];
+    face.image = [UIImage systemImageNamed:@"person.crop.circle.fill" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:avatar weight:UIImageSymbolWeightThin]];
+    [content addSubview:face];
+    UILabel *title = SCCarLabel(number, [UIFont systemFontOfSize:28 weight:UIFontWeightSemibold], 1);
+    title.frame = CGRectMake(CGRectGetMinX(left) + 12, CGRectGetMaxY(face.frame) + 10, left.size.width - 24, 34);
+    [content addSubview:title];
+    UILabel *subtitle = SCCarLabel(number, [UIFont systemFontOfSize:17], 0.6);
+    subtitle.frame = CGRectMake(CGRectGetMinX(left) + 12, CGRectGetMaxY(title.frame), left.size.width - 24, 22);
+    subtitle.hidden = YES;
+    [content addSubview:subtitle];
+    // The contact is looked up away from the main thread, so the countdown shows at once
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        UIImage *photo = nil;
+        NSString *name = nil;
+        @try { name = SCNameForNumber(number, &photo); } @catch (NSException *e) {}
+        if (!name) return;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (gCarWindow != window) return;
+            title.text = name;
+            subtitle.hidden = NO;
+            if (photo) face.image = photo;
+        });
+    });
+
+    // Two real buttons: a car's screen is tapped at arm's length, so Call Now is no small link here
+    CGFloat buttonHeight = 56, secondHeight = 48, gap = 12;
+    CGFloat side = MIN(130, right.size.height - buttonHeight - secondHeight - gap - 16 - 40);
+    side = MAX(side, 60);
+    CGFloat column = MIN(right.size.width - 32, 300);
+    CGFloat top = CGRectGetMidY(right) - (side + 16 + buttonHeight + gap + secondHeight) / 2;
+    UILabel *circle = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMidX(right) - side / 2, top, side, side)];
+    circle.backgroundColor = color;
+    circle.textColor = UIColor.whiteColor;
+    circle.textAlignment = NSTextAlignmentCenter;
+    circle.font = [UIFont monospacedDigitSystemFontOfSize:side * 0.48 weight:UIFontWeightBold];
+    circle.layer.cornerRadius = side / 2;
+    circle.clipsToBounds = YES;
+    [content addSubview:circle];
+    CAShapeLayer *ring = [CAShapeLayer layer];
+    ring.frame = CGRectMake(0, 0, side, side);
+    ring.path = [UIBezierPath bezierPathWithArcCenter:CGPointMake(side / 2, side / 2) radius:side / 2 - 5 startAngle:-M_PI_2 endAngle:M_PI * 1.5 clockwise:YES].CGPath;
+    ring.fillColor = UIColor.clearColor.CGColor;
+    ring.strokeColor = [UIColor colorWithWhite:1 alpha:0.9].CGColor;
+    ring.lineWidth = 4;
+    ring.lineCap = kCALineCapRound;
+    CABasicAnimation *drain = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
+    drain.fromValue = @1;
+    drain.toValue = @0;
+    drain.duration = seconds;
+    drain.fillMode = kCAFillModeForwards;
+    drain.removedOnCompletion = NO;
+    [ring addAnimation:drain forKey:@"drain"];
+    [circle.layer addSublayer:ring];
+
+    // Custom buttons with fixed colors: CarPlay's own button styling turned a white Cancel grey
+    UIButton *cancel = [UIButton buttonWithType:UIButtonTypeCustom];
+    cancel.frame = CGRectMake(CGRectGetMidX(right) - column / 2, CGRectGetMaxY(circle.frame) + 16, column, buttonHeight);
+    cancel.backgroundColor = color;
+    cancel.layer.cornerRadius = buttonHeight / 2;
+    [cancel setTitle:SCLocalized(@"Cancel") forState:UIControlStateNormal];
+    [cancel setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
+    [cancel setTitleColor:[UIColor colorWithWhite:1 alpha:0.6] forState:UIControlStateHighlighted];
+    cancel.titleLabel.font = [UIFont systemFontOfSize:22 weight:UIFontWeightBold];
+    [cancel addTarget:SCCarActions.class action:@selector(cancel) forControlEvents:UIControlEventTouchUpInside];
+    [content addSubview:cancel];
+    UIButton *callNow = [UIButton buttonWithType:UIButtonTypeCustom];
+    callNow.frame = CGRectMake(CGRectGetMidX(right) - column / 2, CGRectGetMaxY(cancel.frame) + gap, column, secondHeight);
+    callNow.backgroundColor = [UIColor colorWithWhite:1 alpha:0.16];
+    callNow.layer.cornerRadius = secondHeight / 2;
+    [callNow setTitle:SCLocalized(@"Call Now") forState:UIControlStateNormal];
+    [callNow setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
+    [callNow setTitleColor:[UIColor colorWithWhite:1 alpha:0.6] forState:UIControlStateHighlighted];
+    callNow.titleLabel.font = [UIFont systemFontOfSize:18 weight:UIFontWeightSemibold];
+    [callNow addTarget:SCCarActions.class action:@selector(callNow) forControlEvents:UIControlEventTouchUpInside];
+    [content addSubview:callNow];
+
+    [UIView animateWithDuration:0.2 animations:^{ window.alpha = 1; }];
+    gCarWindow = window;
+    gCarShown = identifier;
+
+    CFAbsoluteTime deadline = CFAbsoluteTimeGetCurrent() + seconds;
+    __block NSInteger shown = 0;
+    gCarTimer = [NSTimer scheduledTimerWithTimeInterval:0.1 repeats:YES block:^(NSTimer *timer) {
+        NSTimeInterval remaining = deadline - CFAbsoluteTimeGetCurrent();
+        // SpringBoard's answer normally closes this; if it never comes, don't stay on the car's screen
+        if (remaining < -3) { SCCarDismiss(); return; }
+        NSInteger left = MAX(0, (NSInteger)ceil(remaining));
+        if (left != shown) {
+            shown = left;
+            circle.text = left > 0 ? [NSString stringWithFormat:@"%ld", (long)left] : @"";
+        }
+    }];
+    [[NSRunLoop mainRunLoop] addTimer:gCarTimer forMode:NSRunLoopCommonModes];
+    [gCarTimer fire];
+}
+
+// SpringBoard answered the call service: the call went ahead or was cancelled, so the car's copy closes
+static void SCCarHandleResponse(uint64_t state) {
+    if (gCarShown == 0 || (state >> 8) != gCarShown) return;
+    if ((state & 0xFF) == 1 || (state & 0xFF) == 2) {
+        SCCarDismiss();
+    }
 }
 
 // Whether the call was held back for a countdown (it goes ahead later through proceed)
@@ -1368,6 +1719,182 @@ static NSString *SCJoinRequestNumber(id request, BOOL *hold) {
 %end
 %end
 
+#pragma mark - RemoteCompanion
+
+// RemoteCompanion's add-on asks for these by notification. Settings it changes go through the preferences
+// system only, so SpringBoard copies them into the settings file that every part of Mull reads.
+#define SC_DOMAIN CFSTR("com.goldenappleguy.mull")
+#define SC_NOTE_CHANGED "com.goldenappleguy.mull.changed"          // settings changed somewhere
+#define SC_NOTE_SET_ENABLED "com.goldenappleguy.mull.set.enabled"  // state 0 off, 1 on, 2 toggle
+#define SC_NOTE_SET_CALLS "com.goldenappleguy.mull.set.calls"      // state 0 off, 1 on, 2 toggle
+#define SC_NOTE_PAUSE "com.goldenappleguy.mull.pause"              // minutes in the PauseMinutes preference
+#define SC_NOTE_RESUME "com.goldenappleguy.mull.resume"
+#define SC_NOTE_CANCEL "com.goldenappleguy.mull.cancel"            // the running countdown, call or message
+#define SC_NOTE_NOW "com.goldenappleguy.mull.now"                  // ends the running countdown early
+
+static NSString *SCSettingsPath(void) {
+    return [SCPrefDirs().firstObject stringByAppendingPathComponent:SC_SETTINGS_FILE];
+}
+
+// Writes these values to both the preferences system and the settings file (a nil value removes the key)
+static void SCStoreSettings(NSDictionary *values) {
+    NSMutableDictionary *file = [SCStoredSettings() mutableCopy];
+    for (NSString *key in values) {
+        id value = values[key] == NSNull.null ? nil : values[key];
+        CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)value, SC_DOMAIN);
+        file[key] = value;
+    }
+    CFPreferencesAppSynchronize(SC_DOMAIN);
+    [file writeToFile:SCSettingsPath() atomically:YES];
+}
+
+// The range each number setting allows, read from the settings page's own Root.plist (its sliders' min and
+// max), so the limits live in one place; tools/check_addon.py checks that mull.json uses the same ones
+static NSDictionary<NSString *, NSArray<NSNumber *> *> *SCSettingRanges(void) {
+    static NSDictionary *ranges;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        NSMutableDictionary *found = [NSMutableDictionary dictionary];
+        NSString *path = [SCJailbreakRoot() stringByAppendingPathComponent:@"Library/PreferenceBundles/MullPrefs.bundle/Root.plist"];
+        for (NSDictionary *item in [NSDictionary dictionaryWithContentsOfFile:path][@"items"]) {
+            if (![item isKindOfClass:[NSDictionary class]]) continue;
+            id key = item[@"key"], min = item[@"min"], max = item[@"max"];
+            if ([key isKindOfClass:[NSString class]] && [min isKindOfClass:[NSNumber class]] && [max isKindOfClass:[NSNumber class]]) found[key] = @[min, max];
+        }
+        ranges = found;
+    });
+    return ranges;
+}
+
+// The preferences system has the newest values (from RemoteCompanion, the settings page or the Control Center
+// toggle); bring the file up to date, keeping each number in the range the settings page allows
+static void SCSyncSettings(void) {
+    CFPreferencesAppSynchronize(SC_DOMAIN);
+    CFArrayRef keys = CFPreferencesCopyKeyList(SC_DOMAIN, kCFPreferencesCurrentUser, kCFPreferencesAnyHost);
+    if (!keys) return;
+    NSDictionary *latest = CFBridgingRelease(CFPreferencesCopyMultiple(keys, SC_DOMAIN, kCFPreferencesCurrentUser, kCFPreferencesAnyHost));
+    CFRelease(keys);
+    NSDictionary *ranges = SCSettingRanges();
+    NSMutableDictionary *file = [SCStoredSettings() mutableCopy];
+    BOOL changed = NO;
+    for (NSString *key in latest) {
+        id value = latest[key];
+        NSArray *range = ranges[key];
+        if (range && [value respondsToSelector:@selector(integerValue)]) {
+            NSNumber *clamped = @(MAX([range[0] integerValue], MIN([range[1] integerValue], [value integerValue])));
+            if (![clamped isEqual:value]) CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)clamped, SC_DOMAIN);
+            value = clamped;
+        }
+        if (![file[key] isEqual:value]) {
+            file[key] = value;
+            changed = YES;
+        }
+    }
+    CFPreferencesAppSynchronize(SC_DOMAIN);
+    if (changed) [file writeToFile:SCSettingsPath() atomically:YES];
+}
+
+// Keeps the states RemoteCompanion's conditions read up to date. A state is announced (posted, which fires
+// the add-on's triggers) when it changes, or always when an action about it asked, so its banner shows.
+typedef NS_OPTIONS(NSUInteger, SCAnnounce) { SCAnnounceNone = 0, SCAnnounceEnabled = 1, SCAnnounceCalls = 2 };
+static int gEnabledToken, gCallsToken, gRunningToken;
+
+static void SCPublishStates(SCAnnounce announce) {
+    NSDictionary *stored = SCStoredSettings();
+    uint64_t enabled = !SCBoolean(stored, @"Enabled", YES) ? 0 : (SCIsPaused(stored) ? 2 : 1);
+    uint64_t calls = SCBoolean(stored, @"CallGuard", NO) ? 1 : 0;
+    // The first time after SpringBoard starts only sets the states: nothing changed for the person
+    static BOOL started;
+    BOOL quiet = !started;
+    started = YES;
+    uint64_t old = 0;
+    notify_get_state(gEnabledToken, &old);
+    notify_set_state(gEnabledToken, enabled);
+    if (!quiet && ((announce & SCAnnounceEnabled) || old != enabled)) notify_post(SC_STATE_ENABLED);
+    notify_get_state(gCallsToken, &old);
+    notify_set_state(gCallsToken, calls);
+    if (!quiet && ((announce & SCAnnounceCalls) || old != calls)) notify_post(SC_STATE_CALLS);
+
+    // When a pause ends, say so. The time is on the wall clock, which keeps going while the phone sleeps.
+    static dispatch_source_t resumeTimer;
+    if (resumeTimer) dispatch_source_cancel(resumeTimer);
+    resumeTimer = nil;
+    if (enabled == 2) {
+        double until = [stored[SC_PAUSED_UNTIL_KEY] doubleValue] + 0.5;
+        struct timespec when = { .tv_sec = (time_t)until, .tv_nsec = (long)((until - floor(until)) * NSEC_PER_SEC) };
+        resumeTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
+        dispatch_source_set_timer(resumeTimer, dispatch_walltime(&when, 0), DISPATCH_TIME_FOREVER, NSEC_PER_SEC);
+        dispatch_source_set_event_handler(resumeTimer, ^{
+            SCStoreSettings(@{SC_PAUSED_UNTIL_KEY: NSNull.null});
+            SCPublishStates(SCAnnounceNone);
+        });
+        dispatch_resume(resumeTimer);
+    }
+}
+
+static void SCListen(const char *name, void (^handler)(int token)) {
+    int token;
+    notify_register_dispatch(name, &token, dispatch_get_main_queue(), handler);
+}
+
+static void SCStartRemoteCompanionSpringBoard(void) {
+    notify_register_check(SC_STATE_ENABLED, &gEnabledToken);
+    notify_register_check(SC_STATE_CALLS, &gCallsToken);
+    notify_register_check(SC_STATE_RUNNING, &gRunningToken); // held so the state outlives each post
+    SCSetRunning(SC_RUNNING_CALL, NO); // a call countdown doesn't outlive SpringBoard; a message's may still run
+    SCSyncSettings();
+    SCPublishStates(SCAnnounceNone);
+
+    SCListen(SC_NOTE_CHANGED, ^(int t) {
+        SCSyncSettings();
+        SCPublishStates(SCAnnounceNone);
+    });
+    SCListen(SC_NOTE_SET_ENABLED, ^(int t) {
+        uint64_t mode = SCNoteState(t);
+        NSDictionary *stored = SCStoredSettings();
+        BOOL on = mode == 2 ? !(SCBoolean(stored, @"Enabled", YES) && !SCIsPaused(stored)) : mode == 1;
+        // Turning on or off also ends a pause
+        SCStoreSettings(@{@"Enabled": @(on), SC_PAUSED_UNTIL_KEY: NSNull.null});
+        SCPublishStates(SCAnnounceEnabled);
+    });
+    SCListen(SC_NOTE_SET_CALLS, ^(int t) {
+        uint64_t mode = SCNoteState(t);
+        BOOL on = mode == 2 ? !SCBoolean(SCStoredSettings(), @"CallGuard", NO) : mode == 1;
+        SCStoreSettings(@{@"CallGuard": @(on)});
+        SCPublishStates(SCAnnounceCalls);
+    });
+    SCListen(SC_NOTE_PAUSE, ^(int t) {
+        // Nothing to pause while switched off; the banner then says Off
+        if (!SCBoolean(SCStoredSettings(), @"Enabled", YES)) {
+            SCPublishStates(SCAnnounceEnabled);
+            return;
+        }
+        CFPreferencesAppSynchronize(SC_DOMAIN);
+        id value = CFBridgingRelease(CFPreferencesCopyAppValue(CFSTR("PauseMinutes"), SC_DOMAIN));
+        NSInteger minutes = [value respondsToSelector:@selector(integerValue)] ? [value integerValue] : 30;
+        minutes = MAX(1, MIN(24 * 60, minutes));
+        SCStoreSettings(@{SC_PAUSED_UNTIL_KEY: @(NSDate.date.timeIntervalSince1970 + minutes * 60)});
+        SCPublishStates(SCAnnounceEnabled);
+    });
+    SCListen(SC_NOTE_RESUME, ^(int t) {
+        SCStoreSettings(@{SC_PAUSED_UNTIL_KEY: NSNull.null});
+        SCPublishStates(SCAnnounceEnabled);
+    });
+    // A call's countdown is SpringBoard's; a message's is the Messages app's, which listens too
+    SCListen(SC_NOTE_CANCEL, ^(int t) { if (gCallWindow) [SCCallCancel cancel]; });
+    SCListen(SC_NOTE_NOW, ^(int t) { if (gCallWindow) [SCCallCancel callNow]; });
+}
+
+static void SCStartRemoteCompanionMessages(void) {
+    SCListen(SC_NOTE_CANCEL, ^(int t) {
+        if (!gTimer) return;
+        SCHaptic(UIImpactFeedbackStyleRigid);
+        SCPostState(SC_EVENT_MESSAGE, 2);
+        SCStop();
+    });
+    SCListen(SC_NOTE_NOW, ^(int t) { if (gTimer) SCSendNow(); });
+}
+
 %ctor {
     if (strcmp(getprogname(), "callservicesd") == 0) {
         // The daemon's classes may not be registered yet; install a moment after launch, and only then
@@ -1383,8 +1910,14 @@ static NSString *SCJoinRequestNumber(id request, BOOL *hold) {
         return;
     }
     NSString *bundle = NSBundle.mainBundle.bundleIdentifier;
-    BOOL messages = [bundle isEqualToString:@"com.apple.MobileSMS"];
+    BOOL messagesApp = [bundle isEqualToString:@"com.apple.MobileSMS"];
+    // Replying from a notification (pressing on it) happens in Messages' notification view, a process of its own
+    BOOL messages = messagesApp || [bundle isEqualToString:@"com.apple.MobileSMS.MessagesNotificationExtension"];
     if (messages) {
+        SCStartRemoteCompanionMessages();
+        // A countdown cut off when Messages last quit can't still be running (the notification view starts
+        // while Messages may be counting, so only Messages itself clears this)
+        if (messagesApp) SCSetRunning(SC_RUNNING_MESSAGE, NO);
         // Coming back from the settings page: a reset made there shows in the list straight away
         [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidBecomeActiveNotification object:nil queue:nil usingBlock:^(NSNotification *n) {
             SCApplyReset();
@@ -1400,9 +1933,18 @@ static NSString *SCJoinRequestNumber(id request, BOOL *hold) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             static int token;
             notify_register_dispatch(SC_NOTE_A, &token, dispatch_get_main_queue(), ^(int t) { SCHandleRemoteRequest(); });
+            SCStartRemoteCompanionSpringBoard();
+            static int carToken;
+            notify_register_dispatch(SC_NOTE_CAR_ANSWER, &carToken, dispatch_get_main_queue(), ^(int t) { SCCarAnswered(SCNoteState(t)); });
         });
     }
-    if (messages || [@[@"com.apple.mobilephone", @"com.apple.facetime", @"com.apple.MobileAddressBook", @"com.apple.InCallService"] containsObject:bundle]) {
+    if ([bundle isEqualToString:@"com.apple.CarPlayApp"]) {
+        // Shows SpringBoard's countdown on the car's screen
+        static int showToken, responseToken;
+        notify_register_dispatch(SC_NOTE_CAR_SHOW, &showToken, dispatch_get_main_queue(), ^(int t) { SCCarHandleShow(); });
+        notify_register_dispatch(SC_NOTE_RESPONSE, &responseToken, dispatch_get_main_queue(), ^(int t) { SCCarHandleResponse(SCNoteState(t)); });
+    }
+    if (messagesApp || [@[@"com.apple.mobilephone", @"com.apple.facetime", @"com.apple.MobileAddressBook", @"com.apple.InCallService"] containsObject:bundle]) {
         dlopen("/System/Library/PrivateFrameworks/TelephonyUtilities.framework/TelephonyUtilities", RTLD_LAZY);
         if (NSClassFromString(@"TUCallCenter")) %init(SCCalls);
         // Contact cards live in a framework that may load only when first opened
